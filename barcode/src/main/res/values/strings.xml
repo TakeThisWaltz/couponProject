@@ -1,0 +1,58 @@
+<resources
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:ignore="MissingTranslation">
+    <string name="app_name">PickMe!</string>
+    <string name="action_settings">Settings</string>
+
+    <string name="toast_exit">Press the back key again to close</string>
+    <string name="toast_no_barcode">No barcode was found. Try an other image again.</string>
+    <string name="toast_del_failed">Deleting image is failed.</string>
+
+    <string name="no_expiredt">None</string>
+    <string name="expiredt_format">Exp: MM/dd</string>
+
+    <string name="no_barcode">There is no registered barcode.\nRegister new barcode using + button.</string>
+    <string name="title_cover_image_crop">Crop the cover image.</string>
+
+    <string name="btn_crop">Crop</string>
+    <string name="btn_skip">Skip</string>
+
+    <string name="lb_cover">Cover Image</string>
+    <string name="lb_barcode">Barcode Image</string>
+    <string name="lb_title">Title</string>
+    <string name="lb_desc">Description</string>
+    <string name="lb_expire">Expiration Date : </string>
+    <string name="lb_reset">Reset</string>
+    <string name="btn_save">Save</string>
+    <string name="btn_del">Delete</string>
+
+    <string name="popup_del_org">Barcode was saved successfully.\nDo you want to delete original image?</string>
+
+    <string name="ok">Okay</string>
+    <string name="permission_camera_rationale">Access to the camera is needed for detection</string>
+    <string name="no_camera_permission">There is no Camera permission.</string>
+    <string name="low_storage_error">Face detector dependencies cannot be downloaded due to low device storage</string>
+    <string name="title_activity_main">Barcode Reader Sample</string>
+    <string name="barcode_header">Click &quot;Read Barcode&quot; to read a barcode</string>
+    <string name="read_barcode">Read Barcode</string>
+    <string name="auto_focus">Auto Focus</string>
+    <string name="use_flash">Use Flash</string>
+    <string name="barcode_success">Barcode read successfully</string>
+    <string name="barcode_failure">No barcode captured</string>
+    <string name="barcode_error">"Error reading barcode: %1$s"</string>
+
+
+    <string name="banner_ad_unit_id">ca-app-pub-2972683856601428/7374811395</string>
+
+
+    <string-array name="showGuidelinesArray">
+        <item>Off</item>
+        <item>On Touch</item>
+        <item>On</item>
+    </string-array>
+
+    <string name="code_type_tot">Total</string>
+    <string name="code_type_mem">Membership</string>
+    <string name="code_type_cou">Coupon</string>
+    <string name="code_type_etc">ETC.</string>
+</resources>

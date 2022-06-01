@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="20dp"
+    android:orientation="vertical"
+    android:gravity="center_horizontal"
+    android:padding="3dp">
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/img_grid_thmb"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:scaleType="centerCrop"
+        android:layout_marginBottom="5dp"
+        app:border_width="2dp"
+        app:border_color="#D5D5D5"/>
+
+    <com.etsy.android.grid.util.DynamicHeightTextView
+        android:id="@+id/tv_grid_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="bottom"
+        android:textSize="@dimen/abc_text_size_menu_material"
+        android:textColor="?android:textColorPrimary"/>
+
+    <com.etsy.android.grid.util.DynamicHeightTextView
+        android:id="@+id/tv_grid_writer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="bottom"
+        android:textSize="@dimen/abc_text_size_small_material"
+        android:textColor="?android:textColorSecondary"/>
+<!--
+    <View
+        android:layout_width="30dp"
+        android:layout_height="1dp"
+        android:layout_gravity="center_horizontal"
+        android:background="#BDBDBD" />-->
+</LinearLayout>

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="banner_ad_unit_id">ca-app-pub-2972683856601428/7758937399</string>
+    <string name="copyright1">Copyright </string>
+    <string name="copyright2"> All Rights Reserved.</string>
+    <string name="publisher">TAGTAGTAG</string>
+    <string name="app_name">중GO!</string>
+    <string name="noti_new_article">중GO! 새 글 - [%s]</string>
+    <string name="noti_new_comment">중GO! 새 덧글</string>
+    <string name="noti_new_my_article">끌어올리기 성공</string>
+    <string name="toast_new_keyword">키워드가 등록되었습니다.</string>
+    <string name="toast_new_scrap">스크랩에 추가되었습니다.</string>
+    <string name="toast_article_alarm_on">새글알림이 설정되었습니다.</string>
+    <string name="toast_article_alarm_off">새글알림이 해제되었습니다.</string>
+    <string name="toast_comment_alarm_on">덧글알림 등록되었습니다.</string>
+    <string name="toast_comment_alarm_off">덧글알림 해제되었습니다.</string>
+    <string name="toast_reup_on">끌어올리기 기능이 설정되었습니다.</string>
+    <string name="toast_reup_off">끌어올리기 기능이 해제되었습니다.</string>
+    <string name="toast_reup_failed">해당글은 카페 오류로 인해 끌어올리기 기능을 사용할 수 없습니다.</string>
+    <string name="label_am">오전</string>
+    <string name="label_pm">오후</string>
+    <string name="str_deleted">삭제되었습니다.</string>
+    <string name="toast_exit">앱을 종료하시려면 뒤로가기 버튼을 한번 더 누르세요.</string>
+    <string name="label_no_alarm1">HOME 페이지에서 원하시는 키워드로 검색하신 후</string>
+    <string name="label_no_alarm2">버튼을 누르시면 해당 키워드가 알림 키워드로 등록됩니다.</string>
+    <string name="label_no_scrap1">제품 상세 페이지에서</string>
+    <string name="label_no_scrap2">버튼을 누르시면 스크랩에 추가됩니다.\n댓글을 단 상품도 자동으로 스크랩에 추가됩니다.</string>
+    <string name="label_no_mine">작성한 글이 없습니다.</string>
+</resources>

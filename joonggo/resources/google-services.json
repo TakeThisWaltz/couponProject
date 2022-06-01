@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "930878761097",
+    "firebase_url": "https://joonggo-512ea.firebaseio.com",
+    "project_id": "joonggo-512ea",
+    "storage_bucket": "joonggo-512ea.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:930878761097:android:251cd0f2abfdbd1c",
+        "android_client_info": {
+          "package_name": "com.azazel.cafecrawler"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "930878761097-ibdvdt7b31hsn04m3lrt90889sfbdopa.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB99-ZTDJn5dlCDJAEtHOonuGlZDNB6-Q8"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

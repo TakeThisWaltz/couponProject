@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "613216076830",
+    "firebase_url": "https://barcode-47c62.firebaseio.com",
+    "project_id": "barcode-47c62",
+    "storage_bucket": "barcode-47c62.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:613216076830:android:4a4490d18aefa046",
+        "android_client_info": {
+          "package_name": "kr.azazel.barcode"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "613216076830-hfthu9h8m7nmq7l7ece2oca3j5b0tg3a.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCt7IA6cSej731dYlO2muBcglLbmsblcfc"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,0 +1,46 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <RelativeLayout
+        android:id="@+id/layout_no_data"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center_vertical"
+        android:layout_margin="20dp"
+        android:visibility="gone">
+
+        <com.etsy.android.grid.util.DynamicHeightTextView
+            android:id="@+id/tv_no_alarm1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/label_no_scrap1"
+            android:textSize="@dimen/abc_text_size_menu_material"
+            android:textColor="?android:textColorPrimary" />
+
+        <ImageView
+            android:id="@+id/btn_add_desc"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/tv_no_alarm1"
+            android:layout_marginRight="5dp"
+            android:src="@drawable/ic_add" />
+
+        <com.etsy.android.grid.util.DynamicHeightTextView
+            android:id="@+id/tv_no_alarm2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/label_no_scrap2"
+            android:layout_below="@id/tv_no_alarm1"
+            android:layout_toRightOf="@id/btn_add_desc"
+            android:textSize="@dimen/abc_text_size_menu_material"
+            android:textColor="?android:textColorPrimary" />
+    </RelativeLayout>
+
+    <ListView
+        android:id="@+id/list_scrap"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+</LinearLayout>

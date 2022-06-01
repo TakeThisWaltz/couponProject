@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="toast_crash">An unexpected error has occurred. Kaffe.in will close.</string>
+    <string name="toast_crash_dialog_title">Application Crash Reporting</string>
+    <string name="toast_crash_dialog_text">Kaffe.in is crashed.. Please click OK and send report to developer.</string>
+    
+</resources>
