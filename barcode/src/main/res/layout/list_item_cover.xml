@@ -66,14 +66,14 @@
             android:layout_toRightOf="@+id/layout_cover"
             android:scaleType="centerCrop" />
 
-        <ImageButton
-            android:id="@+id/btn_edit"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentRight="true"
-            android:backgroundTint="#BB3498DB"
-            android:src="@mipmap/ic_action_about" />
+<!--        <ImageButton-->
+<!--            android:id="@+id/btn_edit"-->
+<!--            android:layout_width="25dp"-->
+<!--            android:layout_height="25dp"-->
+<!--            android:layout_alignParentBottom="true"-->
+<!--            android:layout_alignParentRight="true"-->
+<!--            android:backgroundTint="#BB3498DB"-->
+<!--            android:src="@mipmap/ic_edit" />-->
     </RelativeLayout>
 
 

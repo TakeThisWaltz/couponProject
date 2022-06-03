@@ -1,14 +1,14 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 24
+    compileSdkVersion 30
     buildToolsVersion "25.0.0"
     defaultConfig {
         applicationId "kr.azazel.barcode"
         minSdkVersion 15
-        targetSdkVersion 24
-        versionCode 11
-        versionName "1.1"
+        targetSdkVersion 30
+        versionCode 20
+        versionName "2.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {

@@ -1,7 +1,13 @@
 package kr.azazel.barcode.adapters;
 
+import static android.content.Context.CLIPBOARD_SERVICE;
+
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
@@ -10,12 +16,11 @@ import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
-import com.azazel.framework.util.AzUtil;
+import com.azazel.framework.AzApplication;
 import com.azazel.framework.util.LOG;
 import com.squareup.picasso.Picasso;
 
@@ -76,21 +81,52 @@ public class BarcodeAdapter implements ICursorAdapter {
         final Uri imageCode = Uri.fromFile(new File(barcode.barcodeImage));
         Picasso.with(holder.mFoldableLayout.getContext()).load(imageCode).into(holder.imgDetail);
 
-        if(TextUtils.isEmpty(barcode.coverImage)){
+        if (TextUtils.isEmpty(barcode.coverImage)) {
             holder.imgCover.setImageResource(R.mipmap.ic_default);
-        }else {
+        } else {
             final Uri imageCover = Uri.fromFile(new File(barcode.coverImage));
             Picasso.with(holder.mFoldableLayout.getContext()).load(imageCover).into(holder.imgCover);
         }
         holder.tvCoverTitle.setText(barcode.title);
         holder.tvDetailTitle.setText(barcode.title);
-        holder.tvDetailCode.setText(barcode.code + "/" + barcode.type);
+        holder.tvDetailCode.setText(barcode.code + "/" + barcode.type + "\uD83D\uDCCB");
+        holder.tvDetailCode.setTag(barcode.code);
+
+        holder.tvDetailCode.setOnClickListener((v) -> {
+            ClipboardManager clipboard = (ClipboardManager) v.getContext().getSystemService(CLIPBOARD_SERVICE);
+            ClipData clip = ClipData.newPlainText("label", ((TextView) v).getTag().toString());
+            clipboard.setPrimaryClip(clip);
+            Toast.makeText(AzApplication.APP_CONTEXT, "코드값이 복사됐습니다.", Toast.LENGTH_SHORT).show();
+        });
+
+        holder.tvEdit.setOnClickListener(v -> {
+
+        });
+
+        holder.tvDelete.setTag(barcode);
+        holder.tvDelete.setOnClickListener(v -> {
+            new AlertDialog.Builder(activity)
+                    .setMessage(R.string.btn_delete_alert)
+                    .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            ((MyBarcode) v.getTag()).delete();
+                        }
+                    })
+                    .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+
+                        }
+                    })
+                    .create().show();
+        });
 
         holder.tvCoverDesc.setText(barcode.description);
-        if(barcode.expirationDate > 0) {
+        if (barcode.expirationDate > 0) {
             holder.tvCoverExpiredt.setText(android.text.format.DateFormat.format(context.getString(R.string.expiredt_format), barcode.expirationDate));
             holder.tvCoverExpiredt.setVisibility(View.VISIBLE);
-        }else holder.tvCoverExpiredt.setVisibility(View.GONE);
+        } else holder.tvCoverExpiredt.setVisibility(View.GONE);
 
         // Bind state
         if (mFoldStates.containsKey(barcode.id)) {
@@ -107,7 +143,7 @@ public class BarcodeAdapter implements ICursorAdapter {
             holder.mFoldableLayout.foldWithoutAnimation();
         }
 
-        holder.btnEdit.setOnClickListener(new View.OnClickListener() {
+        holder.tvEdit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 PopupUtil.showEditBarcodePopup((AppCompatActivity) activity, barcode);
@@ -157,10 +193,9 @@ public class BarcodeAdapter implements ICursorAdapter {
         });
 
 
-
     }
 
-    public BaseAdapter getAdapter(){
+    public BaseAdapter getAdapter() {
         return adaper.getAdapter();
     }
 
@@ -193,13 +228,27 @@ public class BarcodeAdapter implements ICursorAdapter {
         @Bind(R.id.tv_expiredt)
         protected TextView tvCoverExpiredt;
 
-        @Bind(R.id.btn_edit)
-        protected ImageButton btnEdit;
+//        @Bind(R.id.btn_edit)
+//        protected ImageButton btnEdit;
+
+        private TextView tvEdit;
+        private TextView tvDelete;
 
         public ViewHolder(FoldableLayout foldableLayout) {
             mFoldableLayout = foldableLayout;
             foldableLayout.setupViews(R.layout.list_item_cover, R.layout.list_item_detail, R.dimen.card_cover_height, mFoldableLayout.getContext());
             ButterKnife.bind(this, foldableLayout);
+            this.imgCover = foldableLayout.findViewById(R.id.img_cover);
+            this.imgDetail = foldableLayout.findViewById(R.id.img_detail);
+            this.tvDetailCode = foldableLayout.findViewById(R.id.tv_detail_code);
+            this.tvDetailTitle = foldableLayout.findViewById(R.id.tv_detail_title);
+            this.tvCoverTitle = foldableLayout.findViewById(R.id.tv_cover_title);
+            this.tvCoverDesc = foldableLayout.findViewById(R.id.tv_cover_desc);
+            this.tvCoverExpiredt = foldableLayout.findViewById(R.id.tv_expiredt);
+//            this.btnEdit = foldableLayout.findViewById(R.id.btn_edit);
+
+            this.tvEdit = foldableLayout.findViewById(R.id.tv_edit);
+            this.tvDelete = foldableLayout.findViewById(R.id.tv_delete);
         }
     }
 

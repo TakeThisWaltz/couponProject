@@ -199,32 +199,32 @@ public class PopupUtil {
                                         , etDesc.getText().toString(), etBrand.getText().toString(), codeImg, bitmapCover, expirationDt);
 
                                 if (saved && org != null) {
-                                    new AlertDialog.Builder(activity)
-                                            .setMessage(R.string.popup_del_org)
-                                            .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                                                @Override
-                                                public void onClick(DialogInterface dialog, int which) {
-                                                    try {
-                                                        if ("file".equals(org.getScheme())) {
-                                                            new File(org.getPath()).delete();
-                                                            MediaScannerConnection.scanFile(activity, new String[]{org.getPath()}, null, null);
-                                                        } else if ("content".equals(org.getScheme())) {
-                                                            activity.getContentResolver().delete(org, null, null);
-                                                        }
-
-                                                    } catch (Exception e) {
-                                                        LOG.e(TAG, "delete err", e);
-                                                        Toast.makeText(activity, R.string.toast_del_failed, Toast.LENGTH_SHORT);
-                                                    }
-                                                }
-                                            })
-                                            .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
-                                                @Override
-                                                public void onClick(DialogInterface dialog, int which) {
-
-                                                }
-                                            })
-                                            .create().show();
+//                                    new AlertDialog.Builder(activity)
+//                                            .setMessage(R.string.popup_del_org)
+//                                            .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+//                                                @Override
+//                                                public void onClick(DialogInterface dialog, int which) {
+//                                                    try {
+//                                                        if ("file".equals(org.getScheme())) {
+//                                                            new File(org.getPath()).delete();
+//                                                            MediaScannerConnection.scanFile(activity, new String[]{org.getPath()}, null, null);
+//                                                        } else if ("content".equals(org.getScheme())) {
+//                                                            activity.getContentResolver().delete(org, null, null);
+//                                                        }
+//
+//                                                    } catch (Exception e) {
+//                                                        LOG.e(TAG, "delete err", e);
+//                                                        Toast.makeText(activity, R.string.toast_del_failed, Toast.LENGTH_SHORT);
+//                                                    }
+//                                                }
+//                                            })
+//                                            .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+//                                                @Override
+//                                                public void onClick(DialogInterface dialog, int which) {
+//
+//                                                }
+//                                            })
+//                                            .create().show();
                                 }
 
                                 dialog.cancel();
@@ -387,11 +387,11 @@ public class PopupUtil {
                                 dialog.cancel();
                                 break;
                             }
-                            case R.id.btn_delete:{
-                                barcode.delete();
-                                dialog.cancel();
-                                break;
-                            }
+//                            case R.id.btn_delete:{
+//                                barcode.delete();
+//                                dialog.cancel();
+//                                break;
+//                            }
                             case R.id.img_cover:{
                                 imagePicker.show(((AppCompatActivity)activity).getSupportFragmentManager());
                                 break;
@@ -438,7 +438,7 @@ public class PopupUtil {
                 imgCover.setOnClickListener(clickListener);
 
                 dialog.findViewById(R.id.btn_ok).setOnClickListener(clickListener);
-                dialog.findViewById(R.id.btn_delete).setOnClickListener(clickListener);
+//                dialog.findViewById(R.id.btn_delete).setOnClickListener(clickListener);
 
                 dialog.findViewById(R.id.tv_expiredt).setOnClickListener(clickListener);
                 dialog.findViewById(R.id.tv_expiredt_value).setOnClickListener(clickListener);

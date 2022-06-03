@@ -118,8 +118,6 @@ public class BarcodeConvertor {
             return true;
         }catch(FileNotFoundException exception){
             LOG.e("FileNotFoundException", exception.getMessage());
-        }catch(IOException exception){
-            LOG.e("IOException", exception.getMessage());
         }finally {
             if(out!=null) try {
                 out.close();
