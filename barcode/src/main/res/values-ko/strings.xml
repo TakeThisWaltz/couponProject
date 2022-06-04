@@ -7,6 +7,7 @@
     <string name="toast_exit">앱을 종료하시려면 뒤로가기 버튼을 한번 더 누르세요.</string>
     <string name="toast_no_barcode">바코드가 발견되지 않았습니다. 다른이미지로 다시 시도하세요.</string>
     <string name="toast_del_failed">이미지를 삭제하지 못했습니다.</string>
+    <string name="toast_copied">바코드값을 복사했습니다.</string>
 
     <string name="no_expiredt">없음</string>
     <string name="expiredt_format">MM월dd까지</string>
@@ -25,8 +26,10 @@
     <string name="lb_reset">초기화</string>
     <string name="btn_save">저장</string>
     <string name="btn_del">삭제</string>
+    <string name="btn_close">닫기</string>
     <string name="tv_delete">[삭제]</string>
     <string name="tv_edit">[수정]</string>
+    <string name="tv_share">[공유]</string>
 
     <string name="popup_del_org">바코드 저장을 완료하였습니다.\n원본 이미지를 삭제하시겠습니까?</string>
     <string name="btn_delete_alert">바코드를 삭제하시겠습니까?</string>

@@ -5,7 +5,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.text.TextUtils;
 
 import com.azazel.framework.AzApplication;
 import com.azazel.framework.util.AzUtil;
@@ -20,7 +19,7 @@ public class AzAppDataHelper extends SQLiteOpenHelper {
 
     private static final String DB_NAME = "barcode_manager.db";
 
-    private static final int VERSION = 1;
+    private static final int VERSION = 2;
 
     private static AzAppDataHelper INSTANCE;
 
@@ -58,6 +57,7 @@ public class AzAppDataHelper extends SQLiteOpenHelper {
                 + "_id INTEGER PRIMARY KEY, "
                 + "code TEXT, "
                 + "type TEXT, "
+                + "origin_image TEXT, "
                 + "barcode_image TEXT, "
                 + "cover_image TEXT, "
                 + "expiration_dt INTEGER, "
@@ -75,6 +75,9 @@ public class AzAppDataHelper extends SQLiteOpenHelper {
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         LOG.f(TAG, "onUpgrade - old : " + oldVersion + ", new : " + newVersion);
+        if (oldVersion <= 1 && newVersion > 1) {
+            db.execSQL("ALTER TABLE " + TbBarcode + " ADD COLUMN origin_image TEXT DEFAULT NULL");
+        }
     }
 
 
@@ -82,6 +85,7 @@ public class AzAppDataHelper extends SQLiteOpenHelper {
         ContentValues cv = new ContentValues();
         cv.put("code", code.code);
         cv.put("type", code.type);
+        cv.put("origin_image", code.originImage);
         cv.put("barcode_image", code.barcodeImage);
         cv.put("cover_image", code.coverImage);
         cv.put("expiration_dt", code.expirationDate);
@@ -98,10 +102,12 @@ public class AzAppDataHelper extends SQLiteOpenHelper {
         LOG.i(TAG, "insertBarcode - id : " + id + ", name : " + code.title);
         return (int) id;
     }
+
     public int updateBarcode(MyBarcode code) {
         ContentValues cv = new ContentValues();
         cv.put("code", code.code);
         cv.put("type", code.type);
+        cv.put("origin_image", code.originImage);
         cv.put("barcode_image", code.barcodeImage);
         cv.put("cover_image", code.coverImage);
         cv.put("expiration_dt", code.expirationDate);
@@ -141,8 +147,8 @@ public class AzAppDataHelper extends SQLiteOpenHelper {
 //        return wall;
 //    }
 
-    public void updateImagePath(int id, String pathCode, String pathCover){
-        Cursor cs = mDb.rawQuery("update " + TbBarcode + " set barcode_image = ?, cover_image = ? where _id = ?", new String[]{pathCode, pathCover, id +""});
+    public void updateImagePath(int id, String pathOrigin, String pathCode, String pathCover) {
+        Cursor cs = mDb.rawQuery("update " + TbBarcode + " set origin_image = ?, barcode_image = ?, cover_image = ? where _id = ?", new String[]{pathOrigin, pathCode, pathCover, id + ""});
         AzUtil.printCursor(TAG, cs, false);
     }
 
@@ -152,7 +158,7 @@ public class AzAppDataHelper extends SQLiteOpenHelper {
 
     public Cursor queryBarcodesByCategory(String category) {
         LOG.d(TAG, "queryBarcodesByCategory : " + category);
-        return mDb.query(TbBarcode, null, "0".equals(category)?null:"category = " + category, null, null, null, null);
+        return mDb.query(TbBarcode, null, "0".equals(category) ? null : "category = " + category, null, null, null, null);
     }
 
     public Cursor queryBarcode(String id) {
@@ -165,7 +171,4 @@ public class AzAppDataHelper extends SQLiteOpenHelper {
 
         LOG.i(TAG, "deleteBarcode - deleted : " + deleted);
     }
-
-
-
 }

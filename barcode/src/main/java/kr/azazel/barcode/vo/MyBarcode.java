@@ -2,6 +2,7 @@ package kr.azazel.barcode.vo;
 
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.net.Uri;
 
 import com.azazel.framework.AzApplication;
 import com.azazel.framework.util.FileTool;
@@ -10,6 +11,7 @@ import com.azazel.framework.util.LOG;
 import java.io.File;
 
 import kr.azazel.barcode.AzAppConstants;
+import kr.azazel.barcode.FileUtil;
 import kr.azazel.barcode.R;
 import kr.azazel.barcode.local.AzAppDataHelper;
 import kr.azazel.barcode.reader.BarcodeConvertor;
@@ -17,7 +19,6 @@ import kr.azazel.barcode.reader.BarcodeConvertor;
 /**
  * Created by ji on 2016. 10. 12..
  */
-
 public class MyBarcode {
     private static final String TAG = "MyBarcode";
 
@@ -27,6 +28,7 @@ public class MyBarcode {
 
     public String code;
     public int type;
+    public String originImage;
     public String barcodeImage;
     public String coverImage;
     public long expirationDate;
@@ -70,15 +72,23 @@ public class MyBarcode {
 
     @Override
     public String toString() {
-        return "MyBarcode : id : " + id + ", title : " + title + ", code : " + code + ", type : " + type + ", img : " + barcodeImage + ", cover : " + coverImage;
+        return "MyBarcode : id : " + id + ", title : " + title + ", code : " + code + ", type : " + type + ", img : " + barcodeImage + ", cover : " + coverImage +", origin : " + originImage;
     }
 
-    public static boolean saveBarcode(int category, String code, String title, int type, String desc, String brand, Bitmap imgCode, Bitmap imgCover, long expirationDate) {
+    public static boolean saveBarcode(int category, String code, String title, int type, String desc, String brand, Uri org, Bitmap imgCode, Bitmap imgCover, long expirationDate) {
         MyBarcode barcode = new MyBarcode(category, code, type, expirationDate, title, desc, brand, 0);
 
         int id = AzAppDataHelper.getInstance().insertBarcode(barcode);
 
         String pathCode = AzApplication.APP_CONTEXT.getFilesDir() + "/barcode_" + id + "_" + System.currentTimeMillis();
+        String pathOrigin = null;
+
+        if (org != null) {
+            pathOrigin = AzApplication.APP_CONTEXT.getFilesDir() + "/barcode_origin_" + id + "_" + System.currentTimeMillis();
+            FileUtil.copy(AzApplication.APP_CONTEXT, org, new File(pathOrigin));
+            barcode.originImage = pathOrigin;
+        }
+
         boolean savedCode = BarcodeConvertor.saveBitmaptoJpeg(imgCode, pathCode);
         String pathCover = "";
         boolean savedCover = true;
@@ -88,7 +98,7 @@ public class MyBarcode {
         }
 
         if (savedCode && savedCover)
-            AzAppDataHelper.getInstance().updateImagePath(id, pathCode, pathCover);
+            AzAppDataHelper.getInstance().updateImagePath(id, pathOrigin, pathCode, pathCover);
         else {
             AzAppDataHelper.getInstance().deleteBarcode(id);
 
@@ -107,7 +117,7 @@ public class MyBarcode {
             if (imgCover != null) {
                 String path = AzApplication.APP_CONTEXT.getFilesDir() + "/barcode_cover_" + id + "_" + System.currentTimeMillis();
                 boolean savedCover = BarcodeConvertor.saveBitmaptoJpeg(imgCover, path);
-                if (savedCover){
+                if (savedCover) {
                     FileTool.deleteFile(coverImage);
                     coverImage = path;
                 } else {

@@ -3,8 +3,8 @@ package kr.azazel.barcode;
 public class AzAppConfig {
 	public static final String PUBLISHER = "Azazel";
 	public static final String NAME = "AzBarcode";
-	public static final String VERSION = "2.0";
-	public static final int VERSION_CODE = 20;
+	public static final String VERSION = "2.2";
+	public static final int VERSION_CODE = 22;
 
 	public static final boolean LOG_ENABLED = true;
 	public static final boolean FILE_LOG_ENABLED = false;

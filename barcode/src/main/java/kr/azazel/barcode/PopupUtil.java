@@ -196,7 +196,7 @@ public class PopupUtil {
                         switch (v.getId()){
                             case R.id.btn_ok:{
                                 boolean saved = MyBarcode.saveBarcode(selectedCategory.value(), code.rawValue, etTitle.getText().toString(), code.format
-                                        , etDesc.getText().toString(), etBrand.getText().toString(), codeImg, bitmapCover, expirationDt);
+                                        , etDesc.getText().toString(), etBrand.getText().toString(), org, codeImg, bitmapCover, expirationDt);
 
                                 if (saved && org != null) {
 //                                    new AlertDialog.Builder(activity)
@@ -387,11 +387,10 @@ public class PopupUtil {
                                 dialog.cancel();
                                 break;
                             }
-//                            case R.id.btn_delete:{
-//                                barcode.delete();
-//                                dialog.cancel();
-//                                break;
-//                            }
+                            case R.id.btn_close:{
+                                dialog.cancel();
+                                break;
+                            }
                             case R.id.img_cover:{
                                 imagePicker.show(((AppCompatActivity)activity).getSupportFragmentManager());
                                 break;
@@ -438,7 +437,7 @@ public class PopupUtil {
                 imgCover.setOnClickListener(clickListener);
 
                 dialog.findViewById(R.id.btn_ok).setOnClickListener(clickListener);
-//                dialog.findViewById(R.id.btn_delete).setOnClickListener(clickListener);
+                dialog.findViewById(R.id.btn_close).setOnClickListener(clickListener);
 
                 dialog.findViewById(R.id.tv_expiredt).setOnClickListener(clickListener);
                 dialog.findViewById(R.id.tv_expiredt_value).setOnClickListener(clickListener);

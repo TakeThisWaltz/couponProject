@@ -30,6 +30,7 @@ import java.util.Map;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import kr.azazel.barcode.FileUtil;
 import kr.azazel.barcode.PopupUtil;
 import kr.azazel.barcode.R;
 import kr.azazel.barcode.view.FoldableLayout;
@@ -96,11 +97,7 @@ public class BarcodeAdapter implements ICursorAdapter {
             ClipboardManager clipboard = (ClipboardManager) v.getContext().getSystemService(CLIPBOARD_SERVICE);
             ClipData clip = ClipData.newPlainText("label", ((TextView) v).getTag().toString());
             clipboard.setPrimaryClip(clip);
-            Toast.makeText(AzApplication.APP_CONTEXT, "코드값이 복사됐습니다.", Toast.LENGTH_SHORT).show();
-        });
-
-        holder.tvEdit.setOnClickListener(v -> {
-
+            Toast.makeText(AzApplication.APP_CONTEXT, R.string.toast_copied, Toast.LENGTH_SHORT).show();
         });
 
         holder.tvDelete.setTag(barcode);
@@ -124,9 +121,9 @@ public class BarcodeAdapter implements ICursorAdapter {
 
         holder.tvCoverDesc.setText(barcode.description);
         if (barcode.expirationDate > 0) {
-            holder.tvCoverExpiredt.setText(android.text.format.DateFormat.format(context.getString(R.string.expiredt_format), barcode.expirationDate));
-            holder.tvCoverExpiredt.setVisibility(View.VISIBLE);
-        } else holder.tvCoverExpiredt.setVisibility(View.GONE);
+            holder.tvCoverExpired.setText(android.text.format.DateFormat.format(context.getString(R.string.expiredt_format), barcode.expirationDate));
+            holder.tvCoverExpired.setVisibility(View.VISIBLE);
+        } else holder.tvCoverExpired.setVisibility(View.GONE);
 
         // Bind state
         if (mFoldStates.containsKey(barcode.id)) {
@@ -143,13 +140,22 @@ public class BarcodeAdapter implements ICursorAdapter {
             holder.mFoldableLayout.foldWithoutAnimation();
         }
 
+        holder.tvShare.setTag(barcode);
+        holder.tvShare.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                FileUtil.shareLocalFile(((MyBarcode)v.getTag()).originImage);
+            }
+        });
+        holder.tvEdit.setTag(barcode);
         holder.tvEdit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                PopupUtil.showEditBarcodePopup((AppCompatActivity) activity, barcode);
+                PopupUtil.showEditBarcodePopup((AppCompatActivity) activity, ((MyBarcode)v.getTag()));
             }
         });
 
+        holder.mFoldableLayout.setTag(barcode);
         holder.mFoldableLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -226,11 +232,12 @@ public class BarcodeAdapter implements ICursorAdapter {
         protected TextView tvCoverDesc;
 
         @Bind(R.id.tv_expiredt)
-        protected TextView tvCoverExpiredt;
+        protected TextView tvCoverExpired;
 
 //        @Bind(R.id.btn_edit)
 //        protected ImageButton btnEdit;
 
+        private TextView tvShare;
         private TextView tvEdit;
         private TextView tvDelete;
 
@@ -238,17 +245,18 @@ public class BarcodeAdapter implements ICursorAdapter {
             mFoldableLayout = foldableLayout;
             foldableLayout.setupViews(R.layout.list_item_cover, R.layout.list_item_detail, R.dimen.card_cover_height, mFoldableLayout.getContext());
             ButterKnife.bind(this, foldableLayout);
-            this.imgCover = foldableLayout.findViewById(R.id.img_cover);
-            this.imgDetail = foldableLayout.findViewById(R.id.img_detail);
-            this.tvDetailCode = foldableLayout.findViewById(R.id.tv_detail_code);
-            this.tvDetailTitle = foldableLayout.findViewById(R.id.tv_detail_title);
-            this.tvCoverTitle = foldableLayout.findViewById(R.id.tv_cover_title);
-            this.tvCoverDesc = foldableLayout.findViewById(R.id.tv_cover_desc);
-            this.tvCoverExpiredt = foldableLayout.findViewById(R.id.tv_expiredt);
+            this.imgCover = (ImageView) foldableLayout.findViewById(R.id.img_cover);
+            this.imgDetail = (ImageView) foldableLayout.findViewById(R.id.img_detail);
+            this.tvDetailCode = (TextView) foldableLayout.findViewById(R.id.tv_detail_code);
+            this.tvDetailTitle = (TextView) foldableLayout.findViewById(R.id.tv_detail_title);
+            this.tvCoverTitle = (TextView) foldableLayout.findViewById(R.id.tv_cover_title);
+            this.tvCoverDesc = (TextView) foldableLayout.findViewById(R.id.tv_cover_desc);
+            this.tvCoverExpired = (TextView) foldableLayout.findViewById(R.id.tv_expiredt);
 //            this.btnEdit = foldableLayout.findViewById(R.id.btn_edit);
 
-            this.tvEdit = foldableLayout.findViewById(R.id.tv_edit);
-            this.tvDelete = foldableLayout.findViewById(R.id.tv_delete);
+            this.tvShare = (TextView) foldableLayout.findViewById(R.id.tv_share);
+            this.tvEdit = (TextView) foldableLayout.findViewById(R.id.tv_edit);
+            this.tvDelete = (TextView) foldableLayout.findViewById(R.id.tv_delete);
         }
     }
 

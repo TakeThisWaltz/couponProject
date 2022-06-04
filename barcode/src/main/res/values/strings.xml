@@ -7,6 +7,7 @@
     <string name="toast_exit">Press the back key again to close</string>
     <string name="toast_no_barcode">No barcode was found. Try an other image again.</string>
     <string name="toast_del_failed">Deleting image is failed.</string>
+    <string name="toast_copied">Copied.</string>
 
     <string name="no_expiredt">None</string>
     <string name="expiredt_format">Exp: MM/dd</string>
@@ -25,8 +26,10 @@
     <string name="lb_reset">Reset</string>
     <string name="btn_save">Save</string>
     <string name="btn_del">Delete</string>
+    <string name="btn_close">Close</string>
     <string name="tv_delete">[Delete]</string>
     <string name="tv_edit">[Edit]</string>
+    <string name="tv_share">[Share]</string>
 
     <string name="popup_del_org">Barcode was saved successfully.\nDo you want to delete original image?</string>
     <string name="btn_delete_alert">Delete?</string>
