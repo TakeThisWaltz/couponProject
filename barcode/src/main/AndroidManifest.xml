@@ -21,6 +21,7 @@
         android:icon="@mipmap/ic_logo"
         android:label="@string/app_name"
         android:supportsRtl="true"
+        android:hardwareAccelerated="true"
         android:theme="@style/MyMaterialTheme">
         <meta-data
             android:name="com.google.android.gms.version"
@@ -70,7 +71,17 @@
         <provider
             android:name="kr.azazel.barcode.controllers.MainController"
             android:authorities="kr.azazel.barcode.provider"
-            android:exported="false"></provider>
+            android:exported="false">
+        </provider>
+        <provider
+            android:name="android.support.v4.content.FileProvider"
+            android:authorities="kr.azazel.barcode.fileprovider"
+            android:grantUriPermissions="true"
+            android:exported="false">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/filepaths" />
+        </provider>
     </application>
 
 </manifest>

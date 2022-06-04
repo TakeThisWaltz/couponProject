@@ -58,6 +58,7 @@ public class MyBarcode {
         this.category = cs.getInt(cs.getColumnIndex("category"));
         this.code = cs.getString(cs.getColumnIndex("code"));
         this.type = cs.getInt(cs.getColumnIndex("type"));
+        this.originImage = cs.getString(cs.getColumnIndex("origin_image"));
         this.barcodeImage = cs.getString(cs.getColumnIndex("barcode_image"));
         this.coverImage = cs.getString(cs.getColumnIndex("cover_image"));
         this.expirationDate = cs.getLong(cs.getColumnIndex("expiration_dt"));
@@ -81,7 +82,7 @@ public class MyBarcode {
         int id = AzAppDataHelper.getInstance().insertBarcode(barcode);
 
         String pathCode = AzApplication.APP_CONTEXT.getFilesDir() + "/barcode_" + id + "_" + System.currentTimeMillis();
-        String pathOrigin = null;
+        String pathOrigin = "";
 
         if (org != null) {
             pathOrigin = AzApplication.APP_CONTEXT.getFilesDir() + "/barcode_origin_" + id + "_" + System.currentTimeMillis();

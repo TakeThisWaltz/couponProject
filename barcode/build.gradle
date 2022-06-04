@@ -7,8 +7,8 @@ android {
         applicationId "kr.azazel.barcode"
         minSdkVersion 15
         targetSdkVersion 30
-        versionCode 20
-        versionName "2.0"
+        versionCode 23
+        versionName "2.3"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -46,5 +46,8 @@ dependencies {
 
     implementation 'com.google.firebase:firebase-ads:9.6.1'
     implementation 'com.google.firebase:firebase-core:9.6.1'
+
+    implementation 'commons-io:commons-io:2.4'
+
 }
 apply plugin: 'com.google.gms.google-services'

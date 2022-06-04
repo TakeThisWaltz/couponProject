@@ -33,6 +33,7 @@
 
     <string name="popup_del_org">바코드 저장을 완료하였습니다.\n원본 이미지를 삭제하시겠습니까?</string>
     <string name="btn_delete_alert">바코드를 삭제하시겠습니까?</string>
+    <string name="alert_open_link">바코드값이 웹 URL 주소입니다. 브라우져로 해당 웹페이지에 접속하시겠습니까?</string>
 
     <string name="ok">확인</string>
     <string name="permission_camera_rationale">Access to the camera is needed for detection</string>

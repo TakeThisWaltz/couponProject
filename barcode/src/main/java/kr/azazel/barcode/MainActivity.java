@@ -1,5 +1,7 @@
 package kr.azazel.barcode;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -148,7 +150,7 @@ public class MainActivity extends AzAppCompatActivity implements TedBottomPicker
 
                 }
 
-                if(!bottomPicker.isAdded())
+                if (!bottomPicker.isAdded())
                     bottomPicker.show(getSupportFragmentManager());
             }
         });
@@ -236,6 +238,11 @@ public class MainActivity extends AzAppCompatActivity implements TedBottomPicker
         return super.onOptionsItemSelected(item);
     }
 
+    private void makeBarcodeUi(String barcodeValue, String barcodeFormat) {
+        Barcode barcode = BarcodeConvertor.convertZXingToGoogleType(barcodeValue, barcodeFormat);
+
+        makeBarcodeImage(null, barcode);
+    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -250,8 +257,28 @@ public class MainActivity extends AzAppCompatActivity implements TedBottomPicker
                 //Toast.makeText(this, "Scanned: " + result.getContents(), Toast.LENGTH_LONG).show();
                 LOG.d(TAG, "scanned - " + result);
 
-                Barcode barcode = BarcodeConvertor.convertZXingToGoogleType(result.getContents(), result.getFormatName());
-                makeBarcodeImage(null, barcode);
+                if (result.getContents().startsWith("http://") || result.getContents().startsWith("https://")) {
+                    new AlertDialog.Builder(MainActivity.this)
+                            .setMessage(R.string.alert_open_link)
+                            .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(result.getContents()));
+                                    startActivity(browserIntent);
+                                }
+                            })
+                            .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    makeBarcodeUi(result.getContents(), result.getFormatName());
+                                }
+                            })
+                            .create().show();
+
+
+                } else {
+                    makeBarcodeUi(result.getContents(), result.getFormatName());
+                }
             }
         } else {
             super.onActivityResult(requestCode, resultCode, data);
@@ -307,7 +334,7 @@ public class MainActivity extends AzAppCompatActivity implements TedBottomPicker
 //        intent.putExtra(BarcodeCaptureActivity.UseFlash, false);
 
         //startActivityForResult(intent, RC_BARCODE_CAPTURE);
-        new IntentIntegrator(this).initiateScan();
+        new IntentIntegrator(this).setBeepEnabled(false).initiateScan();
         bottomPicker.dismiss();
     }
 

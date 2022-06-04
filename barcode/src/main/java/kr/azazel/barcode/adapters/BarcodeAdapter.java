@@ -9,6 +9,8 @@ import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
 import android.support.v7.app.AppCompatActivity;
@@ -144,18 +146,30 @@ public class BarcodeAdapter implements ICursorAdapter {
         holder.tvShare.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                FileUtil.shareLocalFile(((MyBarcode)v.getTag()).originImage);
+                MyBarcode code = (MyBarcode) v.getTag();
+                String originImage = code.originImage;
+                if (TextUtils.isEmpty(originImage)) {
+                    Bitmap coverImage = null;
+                    if (TextUtils.isEmpty(code.coverImage)) {
+                        coverImage = BitmapFactory.decodeResource(v.getResources(), R.mipmap.ic_default);
+                    } else {
+                        coverImage = BitmapFactory.decodeFile(code.coverImage);
+                    }
+                    Bitmap combined = FileUtil.combineImagesVertical(coverImage, BitmapFactory.decodeFile(code.barcodeImage));
+                    FileUtil.shareBitmapImage(v, combined);
+                } else {
+                    FileUtil.shareLocalFile(v, originImage);
+                }
             }
         });
         holder.tvEdit.setTag(barcode);
         holder.tvEdit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                PopupUtil.showEditBarcodePopup((AppCompatActivity) activity, ((MyBarcode)v.getTag()));
+                PopupUtil.showEditBarcodePopup((AppCompatActivity) activity, ((MyBarcode) v.getTag()));
             }
         });
 
-        holder.mFoldableLayout.setTag(barcode);
         holder.mFoldableLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

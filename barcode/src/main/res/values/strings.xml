@@ -33,6 +33,7 @@
 
     <string name="popup_del_org">Barcode was saved successfully.\nDo you want to delete original image?</string>
     <string name="btn_delete_alert">Delete?</string>
+    <string name="alert_open_link">This is the web URL. Would you like to link to that webpage?</string>
 
     <string name="ok">Okay</string>
     <string name="permission_camera_rationale">Access to the camera is needed for detection</string>
