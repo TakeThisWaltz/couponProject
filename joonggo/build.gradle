@@ -2,14 +2,7 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 24
-    buildToolsVersion "25.0.0"
 
-    lintOptions {
-        checkReleaseBuilds false
-        // Or, if you prefer, you can continue to check for errors in release builds,
-        // but continue the build even when errors are found:
-        abortOnError false
-    }
 
     defaultConfig {
         applicationId "com.azazel.cafecrawler"
@@ -19,7 +12,7 @@ android {
         versionName "38"
 
 
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
 
     }
     buildTypes {
@@ -34,14 +27,18 @@ android {
             storeFile file("../signature/debug.jks")
         }
     }
+    lint {
+        abortOnError false
+        checkReleaseBuilds false
+    }
 }
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation 'com.android.support:appcompat-v7:24.2.1'
+    implementation 'androidx.appcompat:appcompat:1.0.0'
     implementation project(':framework')
 
-    implementation 'com.android.support:design:24.2.1'
+    implementation 'com.google.android.material:material:1.0.0'
     implementation 'com.etsy.android.grid:library:1.0.5'
     implementation 'com.baoyz.pullrefreshlayout:library:1.0.1'
     implementation 'org.jsoup:jsoup:1.8.1'

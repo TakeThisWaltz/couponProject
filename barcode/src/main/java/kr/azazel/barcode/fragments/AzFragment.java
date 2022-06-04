@@ -1,14 +1,14 @@
 package kr.azazel.barcode.fragments;
 
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.ListView;
+
+import androidx.fragment.app.Fragment;
 
 import com.azazel.framework.AzApplication;
 import com.azazel.framework.util.LOG;
@@ -32,16 +32,15 @@ public class AzFragment extends Fragment {
     private IAzFragment mFragment;
 
 
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Bundle args = getArguments();
-        category = (MyBarcode.Category)args.getSerializable("category");
+        category = (MyBarcode.Category) args.getSerializable("category");
 
         if (category == null) {
             LOG.i(TAG, "onCreate : argument is null, savedInstance : " + savedInstanceState.getInt("category"));
-            category = (MyBarcode.Category)savedInstanceState.getSerializable("category");
+            category = (MyBarcode.Category) savedInstanceState.getSerializable("category");
         }
         TAG += "_" + category.displayString();
 
@@ -73,7 +72,7 @@ public class AzFragment extends Fragment {
         super.onCreateView(inflater, container, savedInstanceState);
         LOG.f(TAG, "onCreateView : " + category);
         mView = mFragment.onCreateView(inflater, container);
-        ListView listView = (ListView)mView.findViewById(R.id.v_list);
+        ListView listView = (ListView) mView.findViewById(R.id.v_list);
         BarcodeAdapter adapter = new BarcodeAdapter(this.getActivity(), this.hashCode(), Uri.withAppendedPath(AzAppConstants.URI.CATEGORY_LIST, category.value() + "/barcodes"), new ICursorAdapter.IDataLoadLisner() {
             @Override
             public void onDataLoadFinished(int dataCount) {
@@ -88,9 +87,9 @@ public class AzFragment extends Fragment {
             @Override
             public void onScrollStateChanged(AbsListView view, int scrollState) {
                 LOG.d(TAG, "onScrollStateChanged - " + scrollState);
-                if(scrollState == SCROLL_STATE_TOUCH_SCROLL)
+                if (scrollState == SCROLL_STATE_TOUCH_SCROLL)
                     AzApplication.sendEmptyMessage(MainActivity.TAG, AzAppConstants.Event.LISTVIEW_SCROLL_START);
-                else if(scrollState == SCROLL_STATE_IDLE)
+                else if (scrollState == SCROLL_STATE_IDLE)
                     AzApplication.sendEmptyMessage(MainActivity.TAG, AzAppConstants.Event.LISTVIEW_SCROLL_END);
             }
 

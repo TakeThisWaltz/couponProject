@@ -26,8 +26,7 @@ import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
-import android.support.annotation.DimenRes;
-import android.support.annotation.LayoutRes;
+
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -36,6 +35,9 @@ import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
+
+import androidx.annotation.DimenRes;
+import androidx.annotation.LayoutRes;
 
 import kr.azazel.barcode.R;
 

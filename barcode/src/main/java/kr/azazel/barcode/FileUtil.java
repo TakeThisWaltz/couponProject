@@ -3,7 +3,7 @@ package kr.azazel.barcode;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
-import android.support.v4.content.FileProvider;
+import androidx.core.content.FileProvider;
 import android.text.TextUtils;
 
 import com.azazel.framework.AzApplication;

@@ -7,12 +7,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Message;
-import android.support.annotation.NonNull;
-import android.support.design.widget.TabLayout;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.view.ViewPager;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -22,6 +16,12 @@ import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.viewpager.widget.ViewPager;
+
 import com.azazel.framework.AzAppCompatActivity;
 import com.azazel.framework.AzApplication;
 import com.azazel.framework.util.LOG;
@@ -29,7 +29,7 @@ import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.MobileAds;
 import com.google.android.gms.vision.barcode.Barcode;
-import com.google.firebase.analytics.FirebaseAnalytics;
+import com.google.android.material.tabs.TabLayout;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 import com.rey.material.widget.FloatingActionButton;
@@ -53,7 +53,7 @@ public class MainActivity extends AzAppCompatActivity implements TedBottomPicker
     private TedBottomPicker bottomPicker;
     private Toolbar toolbar;
 
-    private FirebaseAnalytics mFirebaseAnalytics;
+//    private FirebaseAnalytics mFirebaseAnalytics;
 
     private FloatingActionButton fab;
 
@@ -107,13 +107,14 @@ public class MainActivity extends AzAppCompatActivity implements TedBottomPicker
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
 
-        mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
+//        mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
 
-        MobileAds.initialize(getApplicationContext(), "ca-app-pub-2972683856601428~5898078198");
+//        MobileAds.initialize(getApplicationContext(), "ca-app-pub-2972683856601428~5898078198");
+        MobileAds.initialize(this);
         AdView mAdView = (AdView) findViewById(R.id.adView);
         AdRequest adRequest = new AdRequest.Builder()
-                .addTestDevice(AdRequest.DEVICE_ID_EMULATOR)        // All emulators
-                .addTestDevice("65D277459E8AF4600A1B5729752CF637")  // This is my gal 6 device ID
+//                .addTestDevice(AdRequest.DEVICE_ID_EMULATOR)        // All emulators
+//                .addTestDevice("65D277459E8AF4600A1B5729752CF637")  // This is my gal 6 device ID
                 .build();
         mAdView.loadAd(adRequest);
 
@@ -129,26 +130,23 @@ public class MainActivity extends AzAppCompatActivity implements TedBottomPicker
         setupViewPager(viewPager);
 
 
-        bottomPicker = new TedBottomPicker.Builder(MainActivity.this)
-                .setOnImageSelectedListener(this)
-                .setOnCameraSelectedListener(this)
-                .create();
-
-
         fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(final View view) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN
                         && ContextCompat.checkSelfPermission(MainActivity.this, android.Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                    final String[] permissions = new String[]{android.Manifest.permission.READ_EXTERNAL_STORAGE};
+                    final String[] permissions = new String[]{android.Manifest.permission.READ_EXTERNAL_STORAGE, android.Manifest.permission.WRITE_EXTERNAL_STORAGE};
 
                     ActivityCompat.requestPermissions(MainActivity.this, permissions, RC_HANDLE_EXTAL_STORAGE_PERM);
                     return;
 
                 }
-
-                if(!bottomPicker.isAdded())
+                bottomPicker = new TedBottomPicker.Builder(MainActivity.this)
+                        .setOnImageSelectedListener(MainActivity.this)
+                        .setOnCameraSelectedListener(MainActivity.this)
+                        .create();
+                if (!bottomPicker.isAdded())
                     bottomPicker.show(getSupportFragmentManager());
             }
         });

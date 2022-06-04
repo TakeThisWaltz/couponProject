@@ -1,5 +1,19 @@
 package kr.azazel.barcode.reader;
 
+import static com.google.zxing.BarcodeFormat.AZTEC;
+import static com.google.zxing.BarcodeFormat.CODABAR;
+import static com.google.zxing.BarcodeFormat.CODE_128;
+import static com.google.zxing.BarcodeFormat.CODE_39;
+import static com.google.zxing.BarcodeFormat.CODE_93;
+import static com.google.zxing.BarcodeFormat.EAN_13;
+import static com.google.zxing.BarcodeFormat.EAN_8;
+import static com.google.zxing.BarcodeFormat.ITF;
+import static com.google.zxing.BarcodeFormat.PDF_417;
+import static com.google.zxing.BarcodeFormat.QR_CODE;
+import static com.google.zxing.BarcodeFormat.UPC_A;
+import static com.google.zxing.BarcodeFormat.UPC_E;
+import static com.google.zxing.BarcodeFormat.valueOf;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -8,9 +22,10 @@ import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.provider.MediaStore;
-import android.support.v7.app.AlertDialog;
 import android.util.SparseArray;
 import android.widget.Toast;
+
+import androidx.appcompat.app.AlertDialog;
 
 import com.azazel.framework.util.LOG;
 import com.azazel.framework.util.MemoryUtil;
@@ -31,8 +46,6 @@ import java.util.Map;
 
 import kr.azazel.barcode.R;
 
-import static com.google.zxing.BarcodeFormat.*;
-
 
 /**
  * Created by ji on 2016. 10. 12..
@@ -41,7 +54,7 @@ import static com.google.zxing.BarcodeFormat.*;
 public class BarcodeConvertor {
     private static final String TAG = "BarcodeConvertor";
 
-    public static Barcode detectBarcode(Context context, Uri uri){
+    public static Barcode detectBarcode(Context context, Uri uri) {
         LOG.d(TAG, "detectBarcode : " + uri + ", space : " + MemoryUtil.getPercentageMemoryFree(context));
 
         Barcode result = null;
@@ -51,9 +64,9 @@ public class BarcodeConvertor {
             bitmap = MediaStore.Images.Media.getBitmap(context.getContentResolver(), uri);
 
             detector = new BarcodeDetector.Builder(context.getApplicationContext())
-                            .setBarcodeFormats(Barcode.ALL_FORMATS)
-                            .build();
-            if(detector.isOperational()) {
+                    .setBarcodeFormats(Barcode.ALL_FORMATS)
+                    .build();
+            if (detector.isOperational()) {
                 Frame frame = new Frame.Builder().setBitmap(bitmap).build();
                 SparseArray<Barcode> barcodes = detector.detect(frame);
                 if (barcodes != null && barcodes.size() > 0) {
@@ -61,23 +74,23 @@ public class BarcodeConvertor {
                     LOG.d(TAG, "detectBarcode - found : " + result.rawValue + ", type : " + result.format);
                 } else
                     LOG.e(TAG, "No barcode is found... : " + barcodes);
-            }else{
+            } else {
                 IntentFilter lowstorageFilter = new IntentFilter(Intent.ACTION_DEVICE_STORAGE_LOW);
                 boolean hasLowStorage = context.registerReceiver(null, lowstorageFilter) != null;
                 float availableSpace = MemoryUtil.getPercentageMemoryFree(context);
                 LOG.d(TAG, "BarcodeDetector is not operational... dependency download is in progress.. hasLowStorage : " + hasLowStorage + ", memory : " + availableSpace);
 
                 if (hasLowStorage || availableSpace < 0.1f) {
-                    if(context instanceof Activity){
+                    if (context instanceof Activity) {
                         AlertDialog.Builder builder = new AlertDialog.Builder(context);
                         builder.setTitle("기기 용량이 부족합니다.")        // 제목 설정
                                 .setMessage("저장공간이 부족하여 바코드 분석에 필요한 안드로이드 업데이트 설치에 실패했습니다." +
                                         "\n업데이트를 설치하려면 10%이상의 여유공간이 필요합니다.\n(현재 여유 공간 : "
                                         + (Math.round(availableSpace * 100f)) + "%)\n해당 공간은 설치에 다 쓰이지 않으며 최초 동작의 환경입니다.")
                                 .setCancelable(true)        // 뒤로 버튼 클릭시 취소 가능 설정
-                                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener(){
+                                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                                     // 확인 버튼 클릭시 설정
-                                    public void onClick(DialogInterface dialog, int whichButton){
+                                    public void onClick(DialogInterface dialog, int whichButton) {
 
                                     }
                                 });
@@ -86,7 +99,7 @@ public class BarcodeConvertor {
                         AlertDialog dialog = builder.create();    // 알림창 객체 생성
                         dialog.show();
                         return null;
-                    }else {
+                    } else {
                         Toast.makeText(context, R.string.low_storage_error, Toast.LENGTH_LONG).show();
                         LOG.d(TAG, context.getString(R.string.low_storage_error));
                     }
@@ -103,23 +116,23 @@ public class BarcodeConvertor {
         } catch (IOException e) {
             LOG.e(TAG, "detectBarcode err", e);
         } finally {
-            if(detector != null) detector.release();
-            if(bitmap != null) bitmap.recycle();
+            if (detector != null) detector.release();
+            if (bitmap != null) bitmap.recycle();
         }
         return result;
     }
 
-    public static boolean saveBitmaptoJpeg(Bitmap bitmap, String path){
+    public static boolean saveBitmaptoJpeg(Bitmap bitmap, String path) {
         FileOutputStream out = null;
-        try{
+        try {
             out = new FileOutputStream(path);
 
             bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
             return true;
-        }catch(FileNotFoundException exception){
+        } catch (FileNotFoundException exception) {
             LOG.e("FileNotFoundException", exception.getMessage());
-        }finally {
-            if(out!=null) try {
+        } finally {
+            if (out != null) try {
                 out.close();
             } catch (IOException e) {
 
@@ -128,25 +141,19 @@ public class BarcodeConvertor {
         return false;
     }
 
-    public static Bitmap getBitmap(String barcode, int barcodeType, int width, int height)
-    {
+    public static Bitmap getBitmap(String barcode, int barcodeType, int width, int height) {
         Bitmap barcodeBitmap = null;
         BarcodeFormat barcodeFormat = convertToZXingFormat(barcodeType);
-        try
-        {
+        try {
             barcodeBitmap = encodeAsBitmap(barcode, barcodeFormat, width, height);
-        }
-        catch (WriterException e)
-        {
+        } catch (WriterException e) {
             e.printStackTrace();
         }
         return barcodeBitmap;
     }
 
-    private static BarcodeFormat convertToZXingFormat(int format)
-    {
-        switch (format)
-        {
+    private static BarcodeFormat convertToZXingFormat(int format) {
+        switch (format) {
             case Barcode.CODABAR:
                 return CODABAR;
             case Barcode.CODE_128:
@@ -177,10 +184,10 @@ public class BarcodeConvertor {
         }
     }
 
-    public static Barcode convertZXingToGoogleType(String value, String format){
+    public static Barcode convertZXingToGoogleType(String value, String format) {
         Barcode barcode = new Barcode();
         barcode.rawValue = value;
-        switch (valueOf(format)){
+        switch (valueOf(format)) {
             case CODABAR:
                 barcode.format = Barcode.CODABAR;
                 break;
@@ -238,8 +245,7 @@ public class BarcodeConvertor {
     private static final int WHITE = 0xFFFFFFFF;
     private static final int BLACK = 0xFF000000;
 
-    private static Bitmap encodeAsBitmap(String contents, BarcodeFormat format, int img_width, int img_height) throws WriterException
-    {
+    private static Bitmap encodeAsBitmap(String contents, BarcodeFormat format, int img_width, int img_height) throws WriterException {
         if (contents == null) {
             return null;
         }

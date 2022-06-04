@@ -11,7 +11,6 @@ import android.content.DialogInterface;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
-import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,6 +18,8 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.azazel.framework.AzApplication;
 import com.azazel.framework.util.LOG;
@@ -144,18 +145,17 @@ public class BarcodeAdapter implements ICursorAdapter {
         holder.tvShare.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                FileUtil.shareLocalFile(((MyBarcode)v.getTag()).originImage);
+                FileUtil.shareLocalFile(((MyBarcode) v.getTag()).originImage);
             }
         });
         holder.tvEdit.setTag(barcode);
         holder.tvEdit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                PopupUtil.showEditBarcodePopup((AppCompatActivity) activity, ((MyBarcode)v.getTag()));
+                PopupUtil.showEditBarcodePopup((AppCompatActivity) activity, ((MyBarcode) v.getTag()));
             }
         });
 
-        holder.mFoldableLayout.setTag(barcode);
         holder.mFoldableLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

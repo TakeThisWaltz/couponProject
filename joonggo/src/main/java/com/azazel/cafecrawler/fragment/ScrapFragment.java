@@ -1,7 +1,7 @@
 package com.azazel.cafecrawler.fragment;
 
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
+import androidx.core.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,7 +9,6 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 
 import com.azazel.cafecrawler.CrawlConstants;
-import com.azazel.cafecrawler.CrawlUtil;
 import com.azazel.cafecrawler.DialogUtil;
 import com.azazel.cafecrawler.MetaManager;
 import com.azazel.cafecrawler.R;

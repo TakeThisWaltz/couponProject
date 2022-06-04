@@ -1,4 +1,4 @@
-<android.support.v4.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:ads="http://schemas.android.com/apk/res-auto"
     android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
@@ -25,7 +25,7 @@
 
         </android.support.design.widget.AppBarLayout>
 
-        <android.support.v4.view.ViewPager
+        <androidx.viewpager.widget.ViewPager
             android:id="@+id/layoutViewpager"
             android:layout_width="match_parent"
             android:layout_height="0px"
@@ -41,4 +41,4 @@
             ads:adUnitId="@string/banner_ad_unit_id" />
     </LinearLayout>
 
-</android.support.v4.widget.DrawerLayout>
+</androidx.core.widget.DrawerLayout>

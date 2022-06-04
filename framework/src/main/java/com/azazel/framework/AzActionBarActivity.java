@@ -3,13 +3,14 @@ package com.azazel.framework;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.support.v7.app.ActionBarActivity;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.azazel.framework.util.LOG;
 
 import java.lang.ref.WeakReference;
 
-abstract public class AzActionBarActivity extends ActionBarActivity implements IAzActivity {
+abstract public class AzActionBarActivity extends AppCompatActivity implements IAzActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,17 +48,17 @@ abstract public class AzActionBarActivity extends ActionBarActivity implements I
 
     protected final Handler activityHandler = new InnerClassHandler(this);
 
-    static class InnerClassHandler extends Handler{
+    static class InnerClassHandler extends Handler {
         private final WeakReference<IAzContext> azContextRef;
 
-        InnerClassHandler(IAzContext azContext){
+        InnerClassHandler(IAzContext azContext) {
             this.azContextRef = new WeakReference<IAzContext>(azContext);
         }
 
         @Override
-        public void handleMessage(Message msg){
+        public void handleMessage(Message msg) {
             IAzContext context = azContextRef.get();
-            if(context != null)
+            if (context != null)
                 context.onEventReceived(msg);
         }
     }

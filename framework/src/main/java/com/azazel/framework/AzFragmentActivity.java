@@ -3,7 +3,8 @@ package com.azazel.framework;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.support.v4.app.FragmentActivity;
+
+import androidx.fragment.app.FragmentActivity;
 
 import com.azazel.framework.util.LOG;
 
