@@ -3,18 +3,17 @@ package gun0912.tedbottompicker;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
-import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.annotation.ColorRes;
 import android.support.annotation.DimenRes;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.BottomSheetDialogFragment;
@@ -22,18 +21,19 @@ import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -51,6 +51,7 @@ public class TedBottomPicker extends BottomSheetDialogFragment {
 
     Builder builder;
     TextView tv_title;
+    TextView tv_add_manual;
     private RecyclerView rc_gallery;
     private BottomSheetBehavior.BottomSheetCallback mBottomSheetBehaviorCallback = new BottomSheetBehavior.BottomSheetCallback() {
 
@@ -139,6 +140,24 @@ public class TedBottomPicker extends BottomSheetDialogFragment {
         setRecyclerView();
 
         tv_title = (TextView) contentView.findViewById(R.id.tv_title);
+        if (builder.onManualInputListener != null) {
+            EditText etManualInput = new EditText(contentView.getContext());
+            contentView.findViewById(R.id.tv_add_manual).setOnClickListener(v -> {
+                new AlertDialog.Builder(contentView.getContext())
+                        .setTitle(R.string.alert_input_barcode)
+                        .setView(etManualInput)
+                        .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int whichButton) {
+                                onManualInput(etManualInput.getText().toString());
+                            }
+                        })
+                        .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int whichButton) {
+                            }
+                        })
+                        .show();
+            });
+        }
         setTitle();
     }
 
@@ -198,6 +217,12 @@ public class TedBottomPicker extends BottomSheetDialogFragment {
 
     }
 
+    private void onManualInput(String code) {
+        if (!TextUtils.isEmpty(code)) {
+            builder.onManualInputListener.onManualInput(code);
+        }
+        dismiss();
+    }
 
     private void complete(Uri uri) {
         //uri = Uri.parse(uri.toString());
@@ -300,6 +325,10 @@ public class TedBottomPicker extends BottomSheetDialogFragment {
     }
 
 
+    public interface OnManualInputListener {
+        void onManualInput(String code);
+    }
+
     public interface OnImageSelectedListener {
         void onImageSelected(Uri uri);
     }
@@ -325,6 +354,7 @@ public class TedBottomPicker extends BottomSheetDialogFragment {
 
         public int spacing = 1;
 
+        public OnManualInputListener onManualInputListener;
         public OnImageSelectedListener onImageSelectedListener;
         public OnCameraSelectedListener onCameraSelectedListener;
         public OnErrorListener onErrorListener;
@@ -351,6 +381,11 @@ public class TedBottomPicker extends BottomSheetDialogFragment {
 
         public Builder setMaxCount(int maxCount) {
             this.maxCount = maxCount;
+            return this;
+        }
+
+        public Builder setOnManualInputListener(OnManualInputListener onManualInputListener) {
+            this.onManualInputListener = onManualInputListener;
             return this;
         }
 

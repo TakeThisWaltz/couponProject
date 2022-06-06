@@ -15,6 +15,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -43,7 +44,7 @@ import kr.azazel.barcode.adapters.ChannelPagerAdapter;
 import kr.azazel.barcode.reader.BarcodeConvertor;
 
 
-public class MainActivity extends AzAppCompatActivity implements TedBottomPicker.OnImageSelectedListener, TedBottomPicker.OnCameraSelectedListener {
+public class MainActivity extends AzAppCompatActivity implements TedBottomPicker.OnImageSelectedListener, TedBottomPicker.OnCameraSelectedListener, TedBottomPicker.OnManualInputListener {
     public static final String TAG = "MainActivity";
 
     private static final int RC_BARCODE_CAPTURE = 9001;
@@ -132,6 +133,7 @@ public class MainActivity extends AzAppCompatActivity implements TedBottomPicker
 
 
         bottomPicker = new TedBottomPicker.Builder(MainActivity.this)
+                .setOnManualInputListener(this)
                 .setOnImageSelectedListener(this)
                 .setOnCameraSelectedListener(this)
                 .create();
@@ -402,5 +404,12 @@ public class MainActivity extends AzAppCompatActivity implements TedBottomPicker
                 " Result code = " + (grantResults.length > 0 ? grantResults[0] : "(empty)"));
 
 
+    }
+
+    @Override
+    public void onManualInput(String code) {
+        if (!TextUtils.isEmpty(code)) {
+            makeBarcodeUi(code, "CODE_128");
+        }
     }
 }

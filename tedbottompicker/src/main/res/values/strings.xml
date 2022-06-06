@@ -1,4 +1,6 @@
 <resources>
 
     <string name="tedbottompicker_title">Select Image.</string>
+    <string name="add_manual">[✏️🔢 Manual input]</string>
+    <string name="alert_input_barcode">Enter the code value.</string>
 </resources>
