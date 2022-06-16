@@ -30,6 +30,7 @@
     <string name="tv_delete">[Delete]</string>
     <string name="tv_edit">[Edit]</string>
     <string name="tv_share">[Share]</string>
+    <string name="tv_full_origin">[Source]</string>
 
     <string name="popup_del_org">Barcode was saved successfully.\nDo you want to delete original image?</string>
     <string name="btn_delete_alert">Delete?</string>

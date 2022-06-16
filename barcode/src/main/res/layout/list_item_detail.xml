@@ -24,15 +24,32 @@
         android:background="@android:color/white"
         android:orientation="vertical">
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@android:color/white"
+        android:orientation="horizontal">
+
         <TextView
             android:id="@+id/tv_detail_title"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="10dp"
             android:gravity="left|top"
             android:textColor="@color/colorPrimary"
             android:textStyle="bold" />
 
+
+        <TextView
+            android:id="@+id/tv_full_org_image"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="20dp"
+            android:gravity="left|top"
+            android:text="@string/tv_full_origin"
+            android:textStyle="bold"/>
+
+    </LinearLayout>
         <ImageView
             android:id="@+id/img_detail"
             android:layout_width="match_parent"

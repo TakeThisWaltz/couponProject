@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.text.TextUtils;
 
 import com.azazel.framework.AzApplication;
 import com.azazel.framework.util.AzUtil;
@@ -159,6 +160,20 @@ public class AzAppDataHelper extends SQLiteOpenHelper {
     public Cursor queryBarcodesByCategory(String category) {
         LOG.d(TAG, "queryBarcodesByCategory : " + category);
         return mDb.query(TbBarcode, null, "0".equals(category) ? null : "category = " + category, null, null, null, null);
+    }
+
+    public Cursor queryBarcodesByCategory(String category, String keyword, String sort) {
+        String query = "select * from tb_barcode where " +
+                "1=1" +
+                ("0".equals(category) ? "" : " and category = " + category) +
+                (TextUtils.isEmpty(keyword) || "null".equals(keyword) ? "" : " and (title like '%" + keyword.replaceAll("\\'", "") + "%' or description like '%" + keyword.replaceAll("\\'", "") + "%')") +
+                " order by " + sort;
+        LOG.d(TAG, "queryBarcodesByCategory : " + query);
+        return mDb.rawQuery(query, null);
+//        return mDb.query(TbBarcode, null,
+//                "0".equals(category) ? null : "category = " + category +
+//                        (TextUtils.isEmpty(keyword)?"":" and title like '%"+keyword+"%'"),
+//                null, null, null, null);
     }
 
     public Cursor queryBarcode(String id) {

@@ -18,6 +18,7 @@ import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.CursorAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -25,6 +26,7 @@ import android.widget.Toast;
 import com.azazel.framework.AzApplication;
 import com.azazel.framework.util.LOG;
 import com.squareup.picasso.Picasso;
+import com.stfalcon.frescoimageviewer.ImageViewer;
 
 import java.io.File;
 import java.util.HashMap;
@@ -52,10 +54,10 @@ public class BarcodeAdapter implements ICursorAdapter {
     private MyCursorAdapter adaper;
     private ICursorAdapter.IDataLoadLisner dataLoadLisner;
 
-    public BarcodeAdapter(final Activity activity, int id, Uri uri, ICursorAdapter.IDataLoadLisner dataLoadLisner) {
+    public BarcodeAdapter(final Activity activity, int category, Uri uri, ICursorAdapter.IDataLoadLisner dataLoadLisner) {
         this.activity = activity;
         this.dataLoadLisner = dataLoadLisner;
-        adaper = new MyCursorAdapter(activity, id, uri, this);
+        adaper = new MyCursorAdapter(activity, category, uri, this);
     }
 
     @Override
@@ -170,6 +172,19 @@ public class BarcodeAdapter implements ICursorAdapter {
             }
         });
 
+        holder.tvFullOrgImage.setTag(barcode);
+        holder.tvFullOrgImage.setVisibility(TextUtils.isEmpty(barcode.originImage) ? View.GONE : View.VISIBLE);
+        holder.tvFullOrgImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                new ImageViewer.Builder(context, new Uri[]{Uri.fromFile(new File(barcode.originImage))})
+                        .hideStatusBar(true)
+                        .allowSwipeToDismiss(true)
+                        .setStartPosition(0)
+                        .show();
+            }
+        });
+
         holder.mFoldableLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -215,7 +230,7 @@ public class BarcodeAdapter implements ICursorAdapter {
 
     }
 
-    public BaseAdapter getAdapter() {
+    public CursorAdapter getAdapter() {
         return adaper.getAdapter();
     }
 
@@ -254,6 +269,7 @@ public class BarcodeAdapter implements ICursorAdapter {
         private TextView tvShare;
         private TextView tvEdit;
         private TextView tvDelete;
+        private TextView tvFullOrgImage;
 
         public ViewHolder(FoldableLayout foldableLayout) {
             mFoldableLayout = foldableLayout;
@@ -271,6 +287,7 @@ public class BarcodeAdapter implements ICursorAdapter {
             this.tvShare = (TextView) foldableLayout.findViewById(R.id.tv_share);
             this.tvEdit = (TextView) foldableLayout.findViewById(R.id.tv_edit);
             this.tvDelete = (TextView) foldableLayout.findViewById(R.id.tv_delete);
+            this.tvFullOrgImage = (TextView) foldableLayout.findViewById(R.id.tv_full_org_image);
         }
     }
 

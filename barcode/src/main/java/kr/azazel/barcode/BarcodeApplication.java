@@ -5,6 +5,7 @@ import android.util.Log;
 import com.azazel.framework.AzApplication;
 import com.azazel.framework.IAzAppConfig;
 import com.azazel.framework.util.LOG;
+import com.facebook.drawee.backends.pipeline.Fresco;
 
 /**
  * Created by ji on 2016. 10. 12..
@@ -61,7 +62,7 @@ public class BarcodeApplication extends AzApplication {
         super.onCreate();
         LOG.f(TAG, "onCreate");
         //ACRA.init(this);
-
+        Fresco.initialize(this);
         //copyAsset("lucia.dat");
 
     }

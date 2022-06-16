@@ -1,23 +1,33 @@
 package kr.azazel.barcode.fragments;
 
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.SearchView;
+import android.text.TextUtils;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Spinner;
 
 import com.azazel.framework.AzApplication;
 import com.azazel.framework.util.LOG;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import kr.azazel.barcode.AzAppConstants;
 import kr.azazel.barcode.MainActivity;
+import kr.azazel.barcode.MetaManager;
 import kr.azazel.barcode.R;
 import kr.azazel.barcode.adapters.BarcodeAdapter;
 import kr.azazel.barcode.adapters.ICursorAdapter;
+import kr.azazel.barcode.vo.BarcodeSort;
 import kr.azazel.barcode.vo.MyBarcode;
 
 /**
@@ -28,20 +38,23 @@ public class AzFragment extends Fragment {
 
     private MyBarcode.Category category;
     private View mView;
+    private MetaManager mMeta;
 
     private IAzFragment mFragment;
 
-
+    private String searchKeyword;
+    private BarcodeSort barcodeSort;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mMeta = MetaManager.getInstance();
         Bundle args = getArguments();
-        category = (MyBarcode.Category)args.getSerializable("category");
+        category = (MyBarcode.Category) args.getSerializable("category");
 
         if (category == null) {
             LOG.i(TAG, "onCreate : argument is null, savedInstance : " + savedInstanceState.getInt("category"));
-            category = (MyBarcode.Category)savedInstanceState.getSerializable("category");
+            category = (MyBarcode.Category) savedInstanceState.getSerializable("category");
         }
         TAG += "_" + category.displayString();
 
@@ -73,8 +86,10 @@ public class AzFragment extends Fragment {
         super.onCreateView(inflater, container, savedInstanceState);
         LOG.f(TAG, "onCreateView : " + category);
         mView = mFragment.onCreateView(inflater, container);
-        ListView listView = (ListView)mView.findViewById(R.id.v_list);
-        BarcodeAdapter adapter = new BarcodeAdapter(this.getActivity(), this.hashCode(), Uri.withAppendedPath(AzAppConstants.URI.CATEGORY_LIST, category.value() + "/barcodes"), new ICursorAdapter.IDataLoadLisner() {
+        ListView listView = (ListView) mView.findViewById(R.id.v_list);
+        SearchView searchView = mView.findViewById(R.id.search_view);
+
+        BarcodeAdapter adapter = new BarcodeAdapter(this.getActivity(), category.value(), Uri.withAppendedPath(AzAppConstants.URI.CATEGORY_LIST, category.value() + "/barcodes"), new ICursorAdapter.IDataLoadLisner() {
             @Override
             public void onDataLoadFinished(int dataCount) {
                 LOG.d(TAG, "onDataLoadFinished - cnt : " + dataCount);
@@ -83,14 +98,66 @@ public class AzFragment extends Fragment {
             }
         });
         listView.setAdapter(adapter.getAdapter());
+        searchView.setTag(adapter);
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                searchKeyword = query;
+                adapter.getAdapter().getFilter().filter(searchKeyword + "|" + barcodeSort.query);
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                if(TextUtils.isEmpty(newText.trim())){
+                    searchKeyword = "";
+                    adapter.getAdapter().getFilter().filter(searchKeyword + "|" + barcodeSort.query);
+                }
+                return false;
+            }
+        });
+
+        Spinner selSort = mView.findViewById(R.id.sel_sort);
+
+        List<BarcodeSort> sortList = new ArrayList<>();
+        for (BarcodeSort value : BarcodeSort.values()) {
+            if (!(category != MyBarcode.Category.COUPON && value == BarcodeSort.EXPIRE_DATE)) {
+                sortList.add(value);
+            }
+        }
+        selSort.setTag(sortList);
+        selSort.setAdapter(new ArrayAdapter<>(mView.getContext()
+                , android.R.layout.simple_spinner_item, sortList));
+        selSort.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                barcodeSort = ((List<BarcodeSort>) parent.getTag()).get(position);
+                mMeta.setBarcodeSortValue(category, barcodeSort);
+                adapter.getAdapter().getFilter().filter(searchKeyword + "|" + barcodeSort.query);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+        barcodeSort = mMeta.getBarcodeSortValue(category);
+        selSort.setSelection(sortList.indexOf(barcodeSort));
+
+
+        //        searchView.setOnCreateContextMenuListener(v -> {
+//            LOG.d(TAG, "search : " + searchView.getQuery());
+//            BarcodeAdapter thisAdapter = (BarcodeAdapter)v.getTag();
+//            thisAdapter.getAdapter().getFilter().filter(searchView.getQuery());
+//        });
 
         listView.setOnScrollListener(new AbsListView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(AbsListView view, int scrollState) {
                 LOG.d(TAG, "onScrollStateChanged - " + scrollState);
-                if(scrollState == SCROLL_STATE_TOUCH_SCROLL)
+                if (scrollState == SCROLL_STATE_TOUCH_SCROLL)
                     AzApplication.sendEmptyMessage(MainActivity.TAG, AzAppConstants.Event.LISTVIEW_SCROLL_START);
-                else if(scrollState == SCROLL_STATE_IDLE)
+                else if (scrollState == SCROLL_STATE_IDLE)
                     AzApplication.sendEmptyMessage(MainActivity.TAG, AzAppConstants.Event.LISTVIEW_SCROLL_END);
             }
 

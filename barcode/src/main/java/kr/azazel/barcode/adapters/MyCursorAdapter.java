@@ -10,15 +10,17 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
 import android.widget.CursorAdapter;
 
+import com.azazel.framework.AzApplication;
 import com.azazel.framework.util.LOG;
+
+import kr.azazel.barcode.local.AzAppDataHelper;
 
 /**
  * Created by JJ_Air on 2015-06-12.
  */
-public class MyCursorAdapter implements LoaderManager.LoaderCallbacks<Cursor>{
+public class MyCursorAdapter implements LoaderManager.LoaderCallbacks<Cursor> {
 
     public static final String TAG = "MyCursorAdapter";
 
@@ -26,11 +28,15 @@ public class MyCursorAdapter implements LoaderManager.LoaderCallbacks<Cursor>{
     private Uri mUri;
     private CursorAdapter mAdapter;
     private ICursorAdapter mListener;
+    private int category;
+    private AzAppDataHelper dataHelper;
 
-    public MyCursorAdapter(Activity activity, int id, Uri uri, ICursorAdapter listener){
+    public MyCursorAdapter(Activity activity, int category, Uri uri, ICursorAdapter listener) {
+        this.dataHelper = AzAppDataHelper.getInstance();
         this.mActivity = activity;
         this.mUri = uri;
         this.mListener = listener;
+        this.category = category;
 
         this.mAdapter = new CursorAdapter(activity, null, false) {
             @Override
@@ -44,7 +50,20 @@ public class MyCursorAdapter implements LoaderManager.LoaderCallbacks<Cursor>{
             }
         };
 
-        activity.getLoaderManager().initLoader(id, null, this);
+        mAdapter.setFilterQueryProvider(q -> {
+            LOG.d(TAG, "query : " + q);
+            String[] args = q.toString().split("\\|");
+            String keyword = args[0];
+            String sort = args.length > 1 ? args[1] : null;
+            Cursor cs = dataHelper.queryBarcodesByCategory(category + "", keyword, sort);
+            AzApplication.executeUIJob(() -> {
+                mAdapter.swapCursor(cs);
+                mAdapter.notifyDataSetChanged();
+            });
+            return null;
+        });
+
+        activity.getLoaderManager().initLoader(category, null, this);
     }
 
     @Override
@@ -67,7 +86,11 @@ public class MyCursorAdapter implements LoaderManager.LoaderCallbacks<Cursor>{
         mAdapter.swapCursor(null);
     }
 
-    public BaseAdapter getAdapter(){
+    public CursorAdapter getAdapter() {
         return this.mAdapter;
+    }
+
+    public void setFilter(String query) {
+        mAdapter.getFilter().filter(query);
     }
 }

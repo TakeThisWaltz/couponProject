@@ -11,8 +11,8 @@
       "type": "SINGLE",
       "filters": [],
       "attributes": [],
-      "versionCode": 26,
-      "versionName": "2.6",
+      "versionCode": 29,
+      "versionName": "2.9",
       "outputFile": "barcode-release.apk"
     }
   ],

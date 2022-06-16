@@ -35,10 +35,11 @@ public class ChannelPagerAdapter extends SmartFragmentStatePagerAdapter implemen
         this.mActivity = activity;
         //activity.getLoaderManager().initLoader(this.hashCode(), null, this);
 
-        for(MyBarcode.Category cate : MyBarcode.Category.values()){
+        for (MyBarcode.Category cate : MyBarcode.Category.values()) {
             addCategory(cate);
         }
 
+//        addTab("test", 0);
     }
 
     @Override
@@ -82,8 +83,20 @@ public class ChannelPagerAdapter extends SmartFragmentStatePagerAdapter implemen
 
         mTitleList.add(category.displayString());
         mFragmentList.add(fragment);
-
     }
+
+    private void addTab(String title, int layout) {
+        LOG.i(TAG, "addTab title : " + title);
+        AzFragment fragment = new AzFragment();
+        Bundle bundle = new Bundle();
+        bundle.putSerializable("title", title);
+        bundle.putSerializable("layout", layout);
+        fragment.setArguments(bundle);
+
+        mTitleList.add(title);
+        mFragmentList.add(fragment);
+    }
+
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         LOG.i(TAG, "onLoadFinished : " + data.getCount());

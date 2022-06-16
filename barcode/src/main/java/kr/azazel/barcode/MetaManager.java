@@ -13,6 +13,9 @@ import com.azazel.framework.util.AES256Cipher;
 import com.azazel.framework.util.AzUtil;
 import com.azazel.framework.util.LOG;
 
+import kr.azazel.barcode.vo.BarcodeSort;
+import kr.azazel.barcode.vo.MyBarcode;
+
 public class MetaManager {
     private static final String TAG = "MetaManager";
     private static final String EMPTY = "";
@@ -46,13 +49,14 @@ public class MetaManager {
         static final String NICK_NAME = "NICK_NAME";
         static final String AUTH_TOKEN = "AUTH_TOKEN";
         static final String ACCESS_TOKEN = "ACCESS_TOKEN";
+        static final String BARCODE_SORT_ = "BARCODE_SORT_";
     }
 
     private MetaManager() {
         mMeta = AzApplication.APP_CONTEXT.getSharedPreferences(PREF_NAME, 0);
 
 
-        if(ENCRYPT) {
+        if (ENCRYPT) {
             key = AzUtil.getStringWithLength(PREF_NAME + AzUtil.getMacAddress(AzApplication.APP_CONTEXT), 32);
             ivBytes = AES256Cipher.generateByteArr((byte) 0x00, 16);
         }
@@ -105,6 +109,14 @@ public class MetaManager {
 
     public void setAccessToken(String accessToken) {
         mMeta.edit().putString(Key.ACCESS_TOKEN, accessToken).commit();
+    }
+
+    public void setBarcodeSortValue(MyBarcode.Category category, BarcodeSort sort) {
+        mMeta.edit().putString(Key.BARCODE_SORT_ + category.name(), sort.name()).commit();
+    }
+
+    public BarcodeSort getBarcodeSortValue(MyBarcode.Category category) {
+        return BarcodeSort.valueOf(mMeta.getString(Key.BARCODE_SORT_ + category.name(), BarcodeSort.REG_ASC.name()));
     }
 
 

@@ -158,6 +158,7 @@ public class MainActivity extends AzAppCompatActivity implements TedBottomPicker
         });
 
 
+
 //        mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 //        mRecyclerView.addItemDecoration(new RecyclerView.ItemDecoration() {
 //            @Override
