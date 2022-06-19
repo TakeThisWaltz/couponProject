@@ -7,6 +7,8 @@ import com.azazel.framework.IAzAppConfig;
 import com.azazel.framework.util.LOG;
 import com.facebook.drawee.backends.pipeline.Fresco;
 
+import kr.azazel.barcode.service.OcrUtil;
+
 /**
  * Created by ji on 2016. 10. 12..
  */
@@ -64,6 +66,8 @@ public class BarcodeApplication extends AzApplication {
         //ACRA.init(this);
         Fresco.initialize(this);
         //copyAsset("lucia.dat");
+
+        OcrUtil.checkLanguageFile();
 
     }
 }

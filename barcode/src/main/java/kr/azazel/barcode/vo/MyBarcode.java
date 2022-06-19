@@ -73,7 +73,7 @@ public class MyBarcode {
 
     @Override
     public String toString() {
-        return "MyBarcode : id : " + id + ", title : " + title + ", code : " + code + ", type : " + type + ", img : " + barcodeImage + ", cover : " + coverImage +", origin : " + originImage;
+        return "MyBarcode : id : " + id + ", title : " + title + ", code : " + code + ", type : " + type + ", img : " + barcodeImage + ", cover : " + coverImage + ", origin : " + originImage;
     }
 
     public static boolean saveBarcode(int category, String code, String title, int type, String desc, String brand, Uri org, Bitmap imgCode, Bitmap imgCover, long expirationDate) {

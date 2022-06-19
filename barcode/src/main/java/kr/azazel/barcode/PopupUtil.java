@@ -24,6 +24,8 @@ import com.squareup.picasso.Picasso;
 import com.theartofdev.edmodo.cropper.CropImageView;
 
 import java.io.File;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 
 import gun0912.tedbottompicker.TedBottomPicker;
 import kr.azazel.barcode.vo.MyBarcode;
@@ -127,6 +129,20 @@ public class PopupUtil {
                 bitmapCover = coverImg;
 
                 final RadioGroup cateSel = (RadioGroup) dialog.findViewById(R.id.radio_category);
+
+                String expireDate = MetaManager.getInstance().getExtractedExpireDate();
+                if (expireDate != null) {
+                    try {
+                        long time = new SimpleDateFormat("yyyy-MM-dd").parse(expireDate).getTime();
+                        expirationDt = time;
+                        tvExpirationDt.setText(expireDate);
+                        selectedCategory = MyBarcode.Category.COUPON;
+                        layoutExpireDt.setVisibility(View.VISIBLE);
+                        MetaManager.getInstance().setExtractedExpireDate(null);
+                    } catch (ParseException e) {
+                        LOG.e(TAG, "expireDate parse error", e);
+                    }
+                }
 
                 for (MyBarcode.Category cate : MyBarcode.Category.values()) {
                     if (cate == MyBarcode.Category.TOTAL) continue;

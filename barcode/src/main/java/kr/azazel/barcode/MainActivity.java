@@ -42,6 +42,7 @@ import butterknife.ButterKnife;
 import gun0912.tedbottompicker.TedBottomPicker;
 import kr.azazel.barcode.adapters.ChannelPagerAdapter;
 import kr.azazel.barcode.reader.BarcodeConvertor;
+import kr.azazel.barcode.service.TextExtractorUtil;
 
 
 public class MainActivity extends AzAppCompatActivity implements TedBottomPicker.OnImageSelectedListener, TedBottomPicker.OnCameraSelectedListener, TedBottomPicker.OnManualInputListener {
@@ -156,7 +157,6 @@ public class MainActivity extends AzAppCompatActivity implements TedBottomPicker
                     bottomPicker.show(getSupportFragmentManager());
             }
         });
-
 
 
 //        mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -348,6 +348,8 @@ public class MainActivity extends AzAppCompatActivity implements TedBottomPicker
 
             if (org != null) {
 
+                TextExtractorUtil.extractExpireDateInBackground(org);
+                
                 PopupUtil.showCoverImageCropPopup(this, org, new CropImageView.OnCropImageCompleteListener() {
                     @Override
                     public void onCropImageComplete(CropImageView view, CropImageView.CropResult result) {

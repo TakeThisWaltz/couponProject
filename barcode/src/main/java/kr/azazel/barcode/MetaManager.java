@@ -111,6 +111,14 @@ public class MetaManager {
         mMeta.edit().putString(Key.ACCESS_TOKEN, accessToken).commit();
     }
 
+    public String getExtractedExpireDate() {
+        return mMeta.getString("ExtractedExpireDate", null);
+    }
+
+    public void setExtractedExpireDate(String value) {
+        mMeta.edit().putString("ExtractedExpireDate", value).commit();
+    }
+
     public void setBarcodeSortValue(MyBarcode.Category category, BarcodeSort sort) {
         mMeta.edit().putString(Key.BARCODE_SORT_ + category.name(), sort.name()).commit();
     }
