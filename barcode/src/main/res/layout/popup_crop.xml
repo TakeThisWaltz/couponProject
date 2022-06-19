@@ -18,6 +18,11 @@
         android:textColor="@color/colorPrimary"
         android:textStyle="bold" />
 
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:src="@mipmap/butterfly" />
+
     <!-- Image Cropper fill the remaining available height -->
     <com.theartofdev.edmodo.cropper.CropImageView
         android:id="@+id/img_crop"
