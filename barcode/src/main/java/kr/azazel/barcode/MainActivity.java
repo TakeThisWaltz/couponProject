@@ -9,12 +9,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Message;
-import android.support.annotation.NonNull;
-import android.support.design.widget.TabLayout;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.view.ViewPager;
-import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -25,13 +19,22 @@ import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.viewpager.widget.ViewPager;
+
 import com.azazel.framework.AzAppCompatActivity;
 import com.azazel.framework.AzApplication;
 import com.azazel.framework.util.LOG;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.ads.initialization.InitializationStatus;
+import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
 import com.google.android.gms.vision.barcode.Barcode;
+import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
@@ -113,13 +116,18 @@ public class MainActivity extends AzAppCompatActivity implements TedBottomPicker
 
         mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
 
-        MobileAds.initialize(getApplicationContext(), "ca-app-pub-2972683856601428~5898078198");
-        AdView mAdView = (AdView) findViewById(R.id.adView);
-        AdRequest adRequest = new AdRequest.Builder()
-                .addTestDevice(AdRequest.DEVICE_ID_EMULATOR)        // All emulators
-                .addTestDevice("65D277459E8AF4600A1B5729752CF637")  // This is my gal 6 device ID
-                .build();
-        mAdView.loadAd(adRequest);
+        MobileAds.initialize(getApplicationContext(), new OnInitializationCompleteListener(){
+            @Override
+            public void onInitializationComplete(@NonNull InitializationStatus initializationStatus) {
+                LOG.d(TAG, "onInitializationComplete - " + initializationStatus);
+            }
+        });
+//        AdView mAdView = (AdView) findViewById(R.id.adView);
+//        AdRequest adRequest = new AdRequest.Builder()
+////                .addTestDevice(AdRequest.DEVICE_ID_EMULATOR)        // All emulators
+////                .addTestDevice("65D277459E8AF4600A1B5729752CF637")  // This is my gal 6 device ID
+//                .build();
+//        mAdView.loadAd(adRequest);
 
 
         //((ImageView)findViewById(R.id.img_test)).setImageBitmap(BitmapFactory.decodeFile("/data/data/com.azazel.barcode/files/barcode_1"));
@@ -349,7 +357,7 @@ public class MainActivity extends AzAppCompatActivity implements TedBottomPicker
             if (org != null) {
 
                 TextExtractorUtil.extractExpireDateInBackground(org);
-                
+
                 PopupUtil.showCoverImageCropPopup(this, org, new CropImageView.OnCropImageCompleteListener() {
                     @Override
                     public void onCropImageComplete(CropImageView view, CropImageView.CropResult result) {

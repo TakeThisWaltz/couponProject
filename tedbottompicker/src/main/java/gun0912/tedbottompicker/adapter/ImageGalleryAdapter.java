@@ -1,15 +1,18 @@
 package gun0912.tedbottompicker.adapter;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.MediaStore;
-import android.support.annotation.IntDef;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v7.widget.RecyclerView;
+
 import android.view.View;
 import android.view.ViewGroup;
+
+import androidx.annotation.IntDef;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 
@@ -93,7 +96,7 @@ public class ImageGalleryAdapter extends RecyclerView.Adapter<ImageGalleryAdapte
     }
 
     @Override
-    public void onBindViewHolder(final GalleryViewHolder holder, final int position) {
+    public void onBindViewHolder(final GalleryViewHolder holder, @SuppressLint("RecyclerView") final int position) {
 
         PickerTile pickerTile = getItem(position);
 

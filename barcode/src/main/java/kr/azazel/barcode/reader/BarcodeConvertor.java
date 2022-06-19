@@ -8,7 +8,6 @@ import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.provider.MediaStore;
-import android.support.v7.app.AlertDialog;
 import android.util.SparseArray;
 import android.widget.Toast;
 
@@ -32,6 +31,8 @@ import java.util.Map;
 import kr.azazel.barcode.R;
 
 import static com.google.zxing.BarcodeFormat.*;
+
+import androidx.appcompat.app.AlertDialog;
 
 
 /**

@@ -4,7 +4,7 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.graphics.Bitmap;
 import android.net.Uri;
-import android.support.v7.app.AppCompatActivity;
+
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.CompoundButton;
@@ -13,6 +13,8 @@ import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.azazel.framework.util.AzUtil;
 import com.azazel.framework.util.LOG;
