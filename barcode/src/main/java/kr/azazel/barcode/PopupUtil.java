@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.graphics.Bitmap;
 import android.net.Uri;
-
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.CompoundButton;
@@ -18,7 +17,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.azazel.framework.util.AzUtil;
 import com.azazel.framework.util.LOG;
-import com.google.android.gms.vision.barcode.Barcode;
+import com.google.mlkit.vision.barcode.common.Barcode;
 import com.rey.material.app.DatePickerDialog;
 import com.rey.material.app.DialogFragment;
 import com.rey.material.app.ThemeManager;
@@ -165,7 +164,7 @@ public class PopupUtil {
                     });
                 }
 
-                ((TextView) dialog.findViewById(R.id.tv_code)).setText(code.rawValue);
+                ((TextView) dialog.findViewById(R.id.tv_code)).setText(code.getRawValue());
 
                 if (bitmapCover != null)
                     imgCover.setImageBitmap(bitmapCover);
@@ -203,7 +202,7 @@ public class PopupUtil {
                     public void onClick(View v) {
                         switch (v.getId()) {
                             case R.id.btn_ok: {
-                                boolean saved = MyBarcode.saveBarcode(selectedCategory.value(), code.rawValue, etTitle.getText().toString(), code.format
+                                boolean saved = MyBarcode.saveBarcode(selectedCategory.value(), code.getRawValue(), etTitle.getText().toString(), code.getFormat()
                                         , etDesc.getText().toString(), etBrand.getText().toString(), org, codeImg, bitmapCover, expirationDt);
 
                                 if (saved && org != null) {

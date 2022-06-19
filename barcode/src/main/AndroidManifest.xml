@@ -33,7 +33,9 @@
         <meta-data
             android:name="com.google.android.gms.vision.DEPENDENCIES"
             android:value="barcode" />
-
+        <meta-data
+            android:name="com.google.mlkit.vision.DEPENDENCIES"
+            android:value="barcode" />
         <activity
             android:name=".SplashActivity"
             android:launchMode="singleTask"
@@ -63,10 +65,10 @@
                 <data android:mimeType="image/*" />
             </intent-filter>
         </activity>
-        <activity
-            android:name="kr.azazel.barcode.reader.BarcodeCaptureActivity"
-            android:label="Read Barcode"
-            android:screenOrientation="portrait" />
+<!--        <activity-->
+<!--            android:name="kr.azazel.barcode.reader.BarcodeCaptureActivity"-->
+<!--            android:label="Read Barcode"-->
+<!--            android:screenOrientation="portrait" />-->
 
         <activity
             android:name="com.journeyapps.barcodescanner.CaptureActivity"

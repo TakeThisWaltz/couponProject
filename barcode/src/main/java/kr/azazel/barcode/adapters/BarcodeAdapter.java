@@ -31,8 +31,13 @@ import com.squareup.picasso.Picasso;
 import com.stfalcon.frescoimageviewer.ImageViewer;
 
 import java.io.File;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TimeZone;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -127,7 +132,9 @@ public class BarcodeAdapter implements ICursorAdapter {
 
         holder.tvCoverDesc.setText(barcode.description);
         if (barcode.expirationDate > 0) {
-            holder.tvCoverExpired.setText(android.text.format.DateFormat.format(context.getString(R.string.expiredt_format), barcode.expirationDate));
+            LocalDate expireDate =LocalDateTime.ofInstant(Instant.ofEpochMilli(barcode.expirationDate), TimeZone.getDefault().toZoneId()).toLocalDate();
+            long dDay = expireDate.until(LocalDate.now(), ChronoUnit.DAYS);
+            holder.tvCoverExpired.setText(android.text.format.DateFormat.format(context.getString(R.string.expiredt_format), barcode.expirationDate) + "\n(D " + (dDay>0?"+":"") + dDay + ")");
             holder.tvCoverExpired.setVisibility(View.VISIBLE);
         } else holder.tvCoverExpired.setVisibility(View.GONE);
 

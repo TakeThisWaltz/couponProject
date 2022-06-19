@@ -28,14 +28,12 @@ import androidx.viewpager.widget.ViewPager;
 import com.azazel.framework.AzAppCompatActivity;
 import com.azazel.framework.AzApplication;
 import com.azazel.framework.util.LOG;
-import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.MobileAds;
 import com.google.android.gms.ads.initialization.InitializationStatus;
 import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
-import com.google.android.gms.vision.barcode.Barcode;
 import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.analytics.FirebaseAnalytics;
+import com.google.mlkit.vision.barcode.common.Barcode;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 import com.rey.material.widget.FloatingActionButton;
@@ -116,7 +114,7 @@ public class MainActivity extends AzAppCompatActivity implements TedBottomPicker
 
         mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
 
-        MobileAds.initialize(getApplicationContext(), new OnInitializationCompleteListener(){
+        MobileAds.initialize(getApplicationContext(), new OnInitializationCompleteListener() {
             @Override
             public void onInitializationComplete(@NonNull InitializationStatus initializationStatus) {
                 LOG.d(TAG, "onInitializationComplete - " + initializationStatus);
@@ -250,9 +248,9 @@ public class MainActivity extends AzAppCompatActivity implements TedBottomPicker
     }
 
     private void makeBarcodeUi(String barcodeValue, String barcodeFormat) {
-        Barcode barcode = BarcodeConvertor.convertZXingToGoogleType(barcodeValue, barcodeFormat);
-
-        makeBarcodeImage(null, barcode);
+//        Barcode barcode = BarcodeConvertor.convertZXingToGoogleType(barcodeValue, barcodeFormat);
+//
+//        makeBarcodeImage(null, barcode);
     }
 
     @Override
@@ -332,9 +330,10 @@ public class MainActivity extends AzAppCompatActivity implements TedBottomPicker
 //                        Snackbar.make(view, "URL : " + uri, Snackbar.LENGTH_LONG)
 //                                .setAction("Action", null).show();
         if (uri != null) {
-            Barcode detected = BarcodeConvertor.detectBarcode(MainActivity.this, uri);
+            BarcodeConvertor.detectBarcode(MainActivity.this, uri, (detected)->{
+                makeBarcodeImage(uri, detected);
+            });
 
-            makeBarcodeImage(uri, detected);
         }
     }
 
@@ -352,7 +351,7 @@ public class MainActivity extends AzAppCompatActivity implements TedBottomPicker
 
     private void makeBarcodeImage(final Uri org, final Barcode code) {
         if (code != null) {
-            final Bitmap bitmap = BarcodeConvertor.getBitmap(code.rawValue, code.format, AzAppConstants.BARCODE_IMG_WIDTH, AzAppConstants.BARCODE_IMG_HEIGHT);
+            final Bitmap bitmap = BarcodeConvertor.getBitmap(code.getRawValue(), code.getFormat(), AzAppConstants.BARCODE_IMG_WIDTH, AzAppConstants.BARCODE_IMG_HEIGHT);
 
             if (org != null) {
 
