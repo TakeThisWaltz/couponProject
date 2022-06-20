@@ -27,6 +27,7 @@ import androidx.viewpager.widget.ViewPager;
 
 import com.azazel.framework.AzAppCompatActivity;
 import com.azazel.framework.AzApplication;
+import com.azazel.framework.AzSimpleWorker;
 import com.azazel.framework.util.LOG;
 import com.google.android.gms.ads.MobileAds;
 import com.google.android.gms.ads.initialization.InitializationStatus;
@@ -330,9 +331,26 @@ public class MainActivity extends AzAppCompatActivity implements TedBottomPicker
 //                        Snackbar.make(view, "URL : " + uri, Snackbar.LENGTH_LONG)
 //                                .setAction("Action", null).show();
         if (uri != null) {
-            BarcodeConvertor.detectBarcode(MainActivity.this, uri, (detected)->{
-                makeBarcodeImage(uri, detected);
+
+            AzApplication.executeJobOnBackground(new AzSimpleWorker() {
+                @Override
+                public void doInBackgroundAndResult() {
+                    BarcodeConvertor.detectBarcode(MainActivity.this, uri, (detected)->{
+//                        makeBarcodeImage(uri, detected);
+                        setResult(true, detected);
+                    });
+
+                }
+
+                @Override
+                public void postOperationWithResult(boolean result, Object value) {
+                    makeBarcodeImage(uri, (Barcode) value);
+                }
             });
+
+//            BarcodeConvertor.detectBarcode(MainActivity.this, uri, (detected)->{
+//                makeBarcodeImage(uri, detected);
+//            });
 
         }
     }
