@@ -17,7 +17,6 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.azazel.framework.util.AzUtil;
 import com.azazel.framework.util.LOG;
-import com.google.mlkit.vision.barcode.common.Barcode;
 import com.rey.material.app.DatePickerDialog;
 import com.rey.material.app.DialogFragment;
 import com.rey.material.app.ThemeManager;
@@ -29,6 +28,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
 import gun0912.tedbottompicker.TedBottomPicker;
+import kr.azazel.barcode.vo.BarcodeVo;
 import kr.azazel.barcode.vo.MyBarcode;
 
 /**
@@ -110,7 +110,7 @@ public class PopupUtil {
         }
     }
 
-    public static void showNewBarcodePopup(final AppCompatActivity activity, final Uri org, final Barcode code, final Bitmap codeImg, final Bitmap coverImg) {
+    public static void showNewBarcodePopup(final AppCompatActivity activity, final Uri org, final BarcodeVo code, final Bitmap codeImg, final Bitmap coverImg) {
         AzUtil.makeTransparentBackgroundDialog(activity, R.layout.popup_new_barcode, new AzUtil.OnAzDialogCreateListener() {
             MyBarcode.Category selectedCategory = MyBarcode.Category.MEMBERSHIP;
             long expirationDt = 0;

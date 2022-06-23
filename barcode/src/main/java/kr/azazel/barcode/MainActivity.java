@@ -27,14 +27,12 @@ import androidx.viewpager.widget.ViewPager;
 
 import com.azazel.framework.AzAppCompatActivity;
 import com.azazel.framework.AzApplication;
-import com.azazel.framework.AzSimpleWorker;
 import com.azazel.framework.util.LOG;
 import com.google.android.gms.ads.MobileAds;
 import com.google.android.gms.ads.initialization.InitializationStatus;
 import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
 import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.analytics.FirebaseAnalytics;
-import com.google.mlkit.vision.barcode.common.Barcode;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 import com.rey.material.widget.FloatingActionButton;
@@ -45,6 +43,7 @@ import gun0912.tedbottompicker.TedBottomPicker;
 import kr.azazel.barcode.adapters.ChannelPagerAdapter;
 import kr.azazel.barcode.reader.BarcodeConvertor;
 import kr.azazel.barcode.service.TextExtractorUtil;
+import kr.azazel.barcode.vo.BarcodeVo;
 
 
 public class MainActivity extends AzAppCompatActivity implements TedBottomPicker.OnImageSelectedListener, TedBottomPicker.OnCameraSelectedListener, TedBottomPicker.OnManualInputListener {
@@ -249,9 +248,9 @@ public class MainActivity extends AzAppCompatActivity implements TedBottomPicker
     }
 
     private void makeBarcodeUi(String barcodeValue, String barcodeFormat) {
-//        Barcode barcode = BarcodeConvertor.convertZXingToGoogleType(barcodeValue, barcodeFormat);
-//
-//        makeBarcodeImage(null, barcode);
+        BarcodeVo barcode = BarcodeConvertor.convertZXingToGoogleType(barcodeValue, barcodeFormat);
+
+        makeBarcodeImage(null, barcode);
     }
 
     @Override
@@ -332,26 +331,31 @@ public class MainActivity extends AzAppCompatActivity implements TedBottomPicker
 //                                .setAction("Action", null).show();
         if (uri != null) {
 
-            AzApplication.executeJobOnBackground(new AzSimpleWorker() {
-                @Override
-                public void doInBackgroundAndResult() {
-                    BarcodeConvertor.detectBarcode(MainActivity.this, uri, (detected)->{
-//                        makeBarcodeImage(uri, detected);
-                        setResult(true, detected);
-                    });
-
-                }
-
-                @Override
-                public void postOperationWithResult(boolean result, Object value) {
-                    makeBarcodeImage(uri, (Barcode) value);
-                }
-            });
-
-//            BarcodeConvertor.detectBarcode(MainActivity.this, uri, (detected)->{
-//                makeBarcodeImage(uri, detected);
+//            AzApplication.executeJobOnBackground(new AzSimpleWorker() {
+//                @Override
+//                public void doInBackgroundAndResult() {
+//                    BarcodeConvertor.detectBarcode(MainActivity.this, uri, (detected)->{
+////                        makeBarcodeImage(uri, detected);
+//                        setResult(true, detected);
+//                    });
+//
+//                }
+//
+//                @Override
+//                public void postOperationWithResult(boolean result, Object value) {
+//                    if(result)
+//                        makeBarcodeImage(uri, (Barcode) value);
+//                }
 //            });
+//
+////            BarcodeConvertor.detectBarcode(MainActivity.this, uri, (detected)->{
+////                makeBarcodeImage(uri, detected);
+////            });
 
+//            BarcodeConvertor.detectBarcodeByGoogle(MainActivity.this, uri);
+
+            BarcodeVo detected = BarcodeConvertor.detectBarcode(MainActivity.this, uri);
+            makeBarcodeImage(uri, detected);
         }
     }
 
@@ -367,7 +371,7 @@ public class MainActivity extends AzAppCompatActivity implements TedBottomPicker
     }
 
 
-    private void makeBarcodeImage(final Uri org, final Barcode code) {
+    private void makeBarcodeImage(final Uri org, final BarcodeVo code) {
         if (code != null) {
             final Bitmap bitmap = BarcodeConvertor.getBitmap(code.getRawValue(), code.getFormat(), AzAppConstants.BARCODE_IMG_WIDTH, AzAppConstants.BARCODE_IMG_HEIGHT);
 
