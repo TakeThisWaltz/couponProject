@@ -1,37 +1,58 @@
 package kr.azazel.barcode.reader;
 
-import android.app.Activity;
+import static com.google.zxing.BarcodeFormat.AZTEC;
+import static com.google.zxing.BarcodeFormat.CODABAR;
+import static com.google.zxing.BarcodeFormat.CODE_128;
+import static com.google.zxing.BarcodeFormat.CODE_39;
+import static com.google.zxing.BarcodeFormat.CODE_93;
+import static com.google.zxing.BarcodeFormat.EAN_13;
+import static com.google.zxing.BarcodeFormat.EAN_8;
+import static com.google.zxing.BarcodeFormat.ITF;
+import static com.google.zxing.BarcodeFormat.PDF_417;
+import static com.google.zxing.BarcodeFormat.QR_CODE;
+import static com.google.zxing.BarcodeFormat.UPC_A;
+import static com.google.zxing.BarcodeFormat.UPC_E;
+
 import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.provider.MediaStore;
-import android.support.v7.app.AlertDialog;
-import android.util.SparseArray;
-import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.core.util.Consumer;
 
 import com.azazel.framework.util.LOG;
 import com.azazel.framework.util.MemoryUtil;
-import com.google.android.gms.vision.Frame;
-import com.google.android.gms.vision.barcode.Barcode;
-import com.google.android.gms.vision.barcode.BarcodeDetector;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.mlkit.vision.barcode.BarcodeScanner;
+import com.google.mlkit.vision.barcode.BarcodeScanning;
+import com.google.mlkit.vision.barcode.common.Barcode;
+import com.google.mlkit.vision.common.InputImage;
 import com.google.zxing.BarcodeFormat;
+import com.google.zxing.BinaryBitmap;
+import com.google.zxing.DecodeHintType;
 import com.google.zxing.EncodeHintType;
+import com.google.zxing.MultiFormatReader;
 import com.google.zxing.MultiFormatWriter;
+import com.google.zxing.RGBLuminanceSource;
+import com.google.zxing.Result;
 import com.google.zxing.WriterException;
 import com.google.zxing.common.BitMatrix;
+import com.google.zxing.common.HybridBinarizer;
+import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
+import com.google.zxing.qrcode.encoder.ByteMatrix;
+import com.google.zxing.qrcode.encoder.QRCode;
 
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.EnumMap;
+import java.util.EnumSet;
+import java.util.List;
 import java.util.Map;
 
-import kr.azazel.barcode.R;
-
-import static com.google.zxing.BarcodeFormat.*;
+import kr.azazel.barcode.vo.BarcodeVo;
 
 
 /**
@@ -41,85 +62,155 @@ import static com.google.zxing.BarcodeFormat.*;
 public class BarcodeConvertor {
     private static final String TAG = "BarcodeConvertor";
 
-    public static Barcode detectBarcode(Context context, Uri uri){
+    public static BarcodeVo decodeWithZxing(Bitmap bitmap) {
+        MultiFormatReader multiFormatReader = new MultiFormatReader();
+        try {
+            Map<DecodeHintType, Object> hints = new EnumMap<DecodeHintType, Object>(DecodeHintType.class);
+            hints.put(DecodeHintType.TRY_HARDER, Boolean.TRUE);
+            hints.put(DecodeHintType.POSSIBLE_FORMATS, EnumSet.allOf(BarcodeFormat.class));
+            hints.put(DecodeHintType.PURE_BARCODE, Boolean.TRUE);
+            multiFormatReader.setHints(hints);
+
+
+            int width = bitmap.getWidth();
+            int height = bitmap.getHeight();
+
+            int[] pixels = new int[width * height];
+            bitmap.getPixels(pixels, 0, width, 0, 0, width, height);
+
+            RGBLuminanceSource source = new RGBLuminanceSource(width, height, pixels);
+
+            if (source != null) {
+                BinaryBitmap binaryBitmap = new BinaryBitmap(new HybridBinarizer(source));
+                Result rawResult = multiFormatReader.decode(binaryBitmap);
+
+                return convertZXingToGoogleType(rawResult.getText(), rawResult.getBarcodeFormat().toString());
+            }
+        } catch (Exception re) {
+            LOG.e(TAG, "decodeWithZxing err", re);
+        } finally {
+            multiFormatReader.reset();
+        }
+        return null;
+    }
+
+    public static void detectBarcodeByGoogle(Context context, Uri uri, Consumer<BarcodeVo> consumer) {
         LOG.d(TAG, "detectBarcode : " + uri + ", space : " + MemoryUtil.getPercentageMemoryFree(context));
 
-        Barcode result = null;
         Bitmap bitmap = null;
-        BarcodeDetector detector = null;
+        BarcodeScanner detector = null;
         try {
             bitmap = MediaStore.Images.Media.getBitmap(context.getContentResolver(), uri);
 
-            detector = new BarcodeDetector.Builder(context.getApplicationContext())
-                            .setBarcodeFormats(Barcode.ALL_FORMATS)
-                            .build();
-            if(detector.isOperational()) {
-                Frame frame = new Frame.Builder().setBitmap(bitmap).build();
-                SparseArray<Barcode> barcodes = detector.detect(frame);
-                if (barcodes != null && barcodes.size() > 0) {
-                    result = barcodes.valueAt(0);
-                    LOG.d(TAG, "detectBarcode - found : " + result.rawValue + ", type : " + result.format);
-                } else
-                    LOG.e(TAG, "No barcode is found... : " + barcodes);
-            }else{
-                IntentFilter lowstorageFilter = new IntentFilter(Intent.ACTION_DEVICE_STORAGE_LOW);
-                boolean hasLowStorage = context.registerReceiver(null, lowstorageFilter) != null;
-                float availableSpace = MemoryUtil.getPercentageMemoryFree(context);
-                LOG.d(TAG, "BarcodeDetector is not operational... dependency download is in progress.. hasLowStorage : " + hasLowStorage + ", memory : " + availableSpace);
+            detector = BarcodeScanning.getClient();
 
-                if (hasLowStorage || availableSpace < 0.1f) {
-                    if(context instanceof Activity){
-                        AlertDialog.Builder builder = new AlertDialog.Builder(context);
-                        builder.setTitle("기기 용량이 부족합니다.")        // 제목 설정
-                                .setMessage("저장공간이 부족하여 바코드 분석에 필요한 안드로이드 업데이트 설치에 실패했습니다." +
-                                        "\n업데이트를 설치하려면 10%이상의 여유공간이 필요합니다.\n(현재 여유 공간 : "
-                                        + (Math.round(availableSpace * 100f)) + "%)\n해당 공간은 설치에 다 쓰이지 않으며 최초 동작의 환경입니다.")
-                                .setCancelable(true)        // 뒤로 버튼 클릭시 취소 가능 설정
-                                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener(){
-                                    // 확인 버튼 클릭시 설정
-                                    public void onClick(DialogInterface dialog, int whichButton){
+            //detector.process(InputImage.fromBitmap(bitmap, 0))
+            detector.process(InputImage.fromFilePath(context, uri))
+                    .addOnSuccessListener(new OnSuccessListener<List<Barcode>>() {
+                        @Override
+                        public void onSuccess(List<Barcode> barcodes) {
+                            BarcodeVo barcode = null;
+                            if (barcodes != null && barcodes.size() > 0) {
+                                Barcode result = barcodes.get(0);
+                                barcode = new BarcodeVo();
+                                barcode.setRawValue(result.getRawValue());
+                                barcode.setFormat(result.getFormat());
+                                LOG.d(TAG, "detectBarcode - found : " + result.getRawValue() + ", type : " + result.getFormat());
+                            } else
+                                LOG.e(TAG, "No barcode is found... : " + barcodes);
 
-                                    }
-                                });
+                            consumer.accept(barcode);
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            // Task failed with an exception
+                            // ...
+                            LOG.e(TAG, "detectBarcodeByGoogle err", e);
+                            consumer.accept(null);
+                        }
+                    });
 
-
-                        AlertDialog dialog = builder.create();    // 알림창 객체 생성
-                        dialog.show();
-                        return null;
-                    }else {
-                        Toast.makeText(context, R.string.low_storage_error, Toast.LENGTH_LONG).show();
-                        LOG.d(TAG, context.getString(R.string.low_storage_error));
-                    }
-                }
-            }
-//            for(int i=0;i<barcodes.size();i++){
-//                Barcode code = barcodes.valueAt(i);
-//                Rect corner = code.getBoundingBox();
-//                Log.d("CODE", "key :  " + barcodes.keyAt(i) + ", value : " + code.displayValue + ", " + code.rawValue + ", " + code.valueFormat + ", bound : " + corner.flattenToString());
-//                Bitmap cropped = Bitmap.createBitmap(bitmap, corner.left, corner.top, corner.width(), corner.height());
-//                saveBitmaptoJpeg(cropped, "Azazel", "cropped_" + barcodes.keyAt(i));
-//
-//            }
         } catch (IOException e) {
             LOG.e(TAG, "detectBarcode err", e);
         } finally {
-            if(detector != null) detector.release();
-            if(bitmap != null) bitmap.recycle();
+//            if(detector != null) detector.release();
+            if (bitmap != null) bitmap.recycle();
         }
-        return result;
+    }
+//
+//    public static void detectBarcodeByGoogle(Context context, Uri uri) {
+//        LOG.d(TAG, "detectBarcode : " + uri + ", space : " + MemoryUtil.getPercentageMemoryFree(context));
+//
+//        Bitmap bitmap = null;
+//        try {
+//            bitmap = MediaStore.Images.Media.getBitmap(context.getContentResolver(), uri);
+//
+//
+//            FirebaseVision.getInstance()
+//                    .getVisionBarcodeDetector()
+//                    .detectInImage(FirebaseVisionImage.fromBitmap(bitmap))
+//                    .addOnSuccessListener(new OnSuccessListener<List<FirebaseVisionBarcode>>() {
+//                        @Override
+//                        public void onSuccess(List<FirebaseVisionBarcode> barcodes) {
+//                            if (barcodes != null && barcodes.size() > 0) {
+//                                FirebaseVisionBarcode result = barcodes.get(0);
+//                                LOG.d(TAG, "detectBarcode - found : " + result.getRawValue() + ", type : " + result.getFormat());
+//
+//                            } else
+//                                LOG.e(TAG, "No barcode is found... : " + barcodes);
+//
+//                        }
+//                    })
+//                    .addOnFailureListener(new OnFailureListener() {
+//                        @Override
+//                        public void onFailure(@NonNull Exception e) {
+//                            // Task failed with an exception
+//                            // ...
+//                            LOG.e(TAG, "detectBarcodeByGoogle err", e);
+//                        }
+//                    });
+//
+//        } catch (IOException e) {
+//            LOG.e(TAG, "detectBarcode err", e);
+//        } finally {
+////            if(detector != null) detector.release();
+//            if (bitmap != null) bitmap.recycle();
+//        }
+//    }
+
+
+    public static BarcodeVo detectBarcode(Context context, Uri uri) {
+        LOG.d(TAG, "detectBarcode : " + uri + ", space : " + MemoryUtil.getPercentageMemoryFree(context));
+
+        Bitmap bitmap = null;
+        try {
+            bitmap = MediaStore.Images.Media.getBitmap(context.getContentResolver(), uri);
+
+            return decodeWithZxing(bitmap);
+
+        } catch (IOException e) {
+            LOG.e(TAG, "detectBarcode err", e);
+        } finally {
+//            if(detector != null) detector.release();
+            if (bitmap != null) bitmap.recycle();
+        }
+        return null;
     }
 
-    public static boolean saveBitmaptoJpeg(Bitmap bitmap, String path){
+
+    public static boolean saveBitmaptoJpeg(Bitmap bitmap, String path) {
         FileOutputStream out = null;
-        try{
+        try {
             out = new FileOutputStream(path);
 
             bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
             return true;
-        }catch(FileNotFoundException exception){
+        } catch (FileNotFoundException exception) {
             LOG.e("FileNotFoundException", exception.getMessage());
-        }finally {
-            if(out!=null) try {
+        } finally {
+            if (out != null) try {
                 out.close();
             } catch (IOException e) {
 
@@ -128,48 +219,42 @@ public class BarcodeConvertor {
         return false;
     }
 
-    public static Bitmap getBitmap(String barcode, int barcodeType, int width, int height)
-    {
+    public static Bitmap getBitmap(String barcode, int barcodeType, int width, int height) {
         Bitmap barcodeBitmap = null;
         BarcodeFormat barcodeFormat = convertToZXingFormat(barcodeType);
-        try
-        {
+        try {
             barcodeBitmap = encodeAsBitmap(barcode, barcodeFormat, width, height);
-        }
-        catch (WriterException e)
-        {
+        } catch (WriterException e) {
             e.printStackTrace();
         }
         return barcodeBitmap;
     }
 
-    private static BarcodeFormat convertToZXingFormat(int format)
-    {
-        switch (format)
-        {
-            case Barcode.CODABAR:
+    private static BarcodeFormat convertToZXingFormat(int format) {
+        switch (format) {
+            case Barcode.FORMAT_CODABAR:
                 return CODABAR;
-            case Barcode.CODE_128:
+            case Barcode.FORMAT_CODE_128:
                 return CODE_128;
-            case Barcode.CODE_39:
+            case Barcode.FORMAT_CODE_39:
                 return CODE_39;
-            case Barcode.CODE_93:
+            case Barcode.FORMAT_CODE_93:
                 return CODE_93;
-            case Barcode.EAN_13:
+            case Barcode.FORMAT_EAN_13:
                 return EAN_13;
-            case Barcode.EAN_8:
+            case Barcode.FORMAT_EAN_8:
                 return EAN_8;
-            case Barcode.ITF:
+            case Barcode.FORMAT_ITF:
                 return ITF;
-            case Barcode.QR_CODE:
+            case Barcode.FORMAT_QR_CODE:
                 return QR_CODE;
-            case Barcode.UPC_A:
+            case Barcode.FORMAT_UPC_A:
                 return UPC_A;
-            case Barcode.UPC_E:
+            case Barcode.FORMAT_UPC_E:
                 return UPC_E;
-            case Barcode.PDF417:
+            case Barcode.FORMAT_PDF417:
                 return PDF_417;
-            case Barcode.AZTEC:
+            case Barcode.FORMAT_AZTEC:
                 return AZTEC;
             //default 128?
             default:
@@ -177,49 +262,49 @@ public class BarcodeConvertor {
         }
     }
 
-    public static Barcode convertZXingToGoogleType(String value, String format){
-        Barcode barcode = new Barcode();
-        barcode.rawValue = value;
-        switch (valueOf(format)){
+    public static BarcodeVo convertZXingToGoogleType(String value, String format) {
+        BarcodeVo barcode = new BarcodeVo();
+        barcode.setRawValue(value);
+        switch (BarcodeFormat.valueOf(format)) {
             case CODABAR:
-                barcode.format = Barcode.CODABAR;
+                barcode.setFormat(Barcode.FORMAT_CODABAR);
                 break;
             case CODE_128:
-                barcode.format = Barcode.CODE_128;
+                barcode.setFormat(Barcode.FORMAT_CODE_128);
                 break;
             case CODE_39:
-                barcode.format = Barcode.CODE_39;
+                barcode.setFormat(Barcode.FORMAT_CODE_39);
                 break;
             case CODE_93:
-                barcode.format = Barcode.CODE_93;
+                barcode.setFormat(Barcode.FORMAT_CODE_93);
                 break;
             case EAN_13:
-                barcode.format = Barcode.EAN_13;
+                barcode.setFormat(Barcode.FORMAT_EAN_13);
                 break;
             case EAN_8:
-                barcode.format = Barcode.EAN_8;
+                barcode.setFormat(Barcode.FORMAT_EAN_8);
                 break;
             case ITF:
-                barcode.format = Barcode.ITF;
+                barcode.setFormat(Barcode.FORMAT_ITF);
                 break;
             case QR_CODE:
-                barcode.format = Barcode.QR_CODE;
+                barcode.setFormat(Barcode.FORMAT_QR_CODE);
                 break;
             case UPC_A:
-                barcode.format = Barcode.UPC_A;
+                barcode.setFormat(Barcode.FORMAT_UPC_A);
                 break;
             case UPC_E:
-                barcode.format = Barcode.UPC_E;
+                barcode.setFormat(Barcode.FORMAT_UPC_E);
                 break;
             case PDF_417:
-                barcode.format = Barcode.PDF417;
+                barcode.setFormat(Barcode.FORMAT_PDF417);
                 break;
             case AZTEC:
-                barcode.format = Barcode.AZTEC;
+                barcode.setFormat(Barcode.FORMAT_AZTEC);
                 break;
             //default 128?
             default:
-                barcode.format = Barcode.CODE_128;
+                barcode.setFormat(Barcode.FORMAT_CODE_128);
                 break;
         }
         return barcode;
@@ -238,21 +323,31 @@ public class BarcodeConvertor {
     private static final int WHITE = 0xFFFFFFFF;
     private static final int BLACK = 0xFF000000;
 
-    private static Bitmap encodeAsBitmap(String contents, BarcodeFormat format, int img_width, int img_height) throws WriterException
-    {
+    private static Bitmap encodeAsBitmap(String contents, BarcodeFormat format, int img_width, int img_height) throws WriterException {
         if (contents == null) {
             return null;
         }
-        Map<EncodeHintType, Object> hints = null;
+        Map<EncodeHintType, Object> hints = new EnumMap<>(EncodeHintType.class);
+        if (format == QR_CODE) {
+            hints.put(EncodeHintType.QR_VERSION, 2);
+            hints.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.L);
+        }
         String encoding = guessAppropriateEncoding(contents);
         if (encoding != null) {
-            hints = new EnumMap<>(EncodeHintType.class);
             hints.put(EncodeHintType.CHARACTER_SET, encoding);
         }
-        MultiFormatWriter writer = new MultiFormatWriter();
+        //MultiFormatWriter writer = new MultiFormatWriter();
         BitMatrix result;
         try {
-            result = writer.encode(contents, format, img_width, img_height, hints);
+//            if (format == QR_CODE) {
+////                QRCodeWriter writer = new QRCodeWriter();
+//                QRCode code = Encoder.encode(contents, ErrorCorrectionLevel.L, hints);
+//                int quietZone = 4;
+//                result = renderResult(code, img_width, img_height, quietZone);
+//            } else {
+
+            result = new MultiFormatWriter().encode(contents, format, img_width, img_height, hints);
+//            }
         } catch (IllegalArgumentException iae) {
             // Unsupported format
             return null;
@@ -281,5 +376,39 @@ public class BarcodeConvertor {
             }
         }
         return null;
+    }
+
+    private static BitMatrix renderResult(QRCode code, int width, int height, int quietZone) {
+        ByteMatrix input = code.getMatrix();
+        if (input == null) {
+            throw new IllegalStateException();
+        }
+        int inputWidth = input.getWidth();
+        int inputHeight = input.getHeight();
+        int qrWidth = inputWidth + (quietZone * 2);
+        int qrHeight = inputHeight + (quietZone * 2);
+        int outputWidth = Math.max(width, qrWidth);
+        int outputHeight = Math.max(height, qrHeight);
+
+        int multiple = Math.min(outputWidth / qrWidth, outputHeight / qrHeight);
+        // Padding includes both the quiet zone and the extra white pixels to accommodate the requested
+        // dimensions. For example, if input is 25x25 the QR will be 33x33 including the quiet zone.
+        // If the requested size is 200x160, the multiple will be 4, for a QR of 132x132. These will
+        // handle all the padding from 100x100 (the actual QR) up to 200x160.
+        int leftPadding = (outputWidth - (inputWidth * multiple)) / 2;
+        int topPadding = (outputHeight - (inputHeight * multiple)) / 2;
+
+        BitMatrix output = new BitMatrix(outputWidth, outputHeight);
+
+        for (int inputY = 0, outputY = topPadding; inputY < inputHeight; inputY++, outputY += multiple) {
+            // Write the contents of this row of the barcode
+            for (int inputX = 0, outputX = leftPadding; inputX < inputWidth; inputX++, outputX += multiple) {
+                if (input.get(inputX, inputY) == 1) {
+                    output.setRegion(outputX, outputY, multiple, multiple);
+                }
+            }
+        }
+
+        return output;
     }
 }

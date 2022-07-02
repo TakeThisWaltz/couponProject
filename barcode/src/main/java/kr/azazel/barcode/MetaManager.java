@@ -13,6 +13,7 @@ import com.azazel.framework.util.AES256Cipher;
 import com.azazel.framework.util.AzUtil;
 import com.azazel.framework.util.LOG;
 
+import kr.azazel.barcode.vo.BarcodeResponse;
 import kr.azazel.barcode.vo.BarcodeSort;
 import kr.azazel.barcode.vo.MyBarcode;
 
@@ -117,6 +118,16 @@ public class MetaManager {
 
     public void setExtractedExpireDate(String value) {
         mMeta.edit().putString("ExtractedExpireDate", value).commit();
+    }
+
+    private BarcodeResponse barcodeInfo;
+
+    public BarcodeResponse getTempBarcode() {
+        return this.barcodeInfo;
+    }
+
+    public void setTempBarcode(BarcodeResponse value) {
+        this.barcodeInfo = value;
     }
 
     public void setBarcodeSortValue(MyBarcode.Category category, BarcodeSort sort) {

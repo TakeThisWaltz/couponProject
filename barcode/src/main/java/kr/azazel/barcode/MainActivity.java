@@ -9,12 +9,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Message;
-import android.support.annotation.NonNull;
-import android.support.design.widget.TabLayout;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.view.ViewPager;
-import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -25,13 +19,21 @@ import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.viewpager.widget.ViewPager;
+
 import com.azazel.framework.AzAppCompatActivity;
 import com.azazel.framework.AzApplication;
 import com.azazel.framework.util.LOG;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.MobileAds;
-import com.google.android.gms.vision.barcode.Barcode;
+import com.google.android.gms.ads.initialization.InitializationStatus;
+import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
+import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
@@ -43,6 +45,7 @@ import gun0912.tedbottompicker.TedBottomPicker;
 import kr.azazel.barcode.adapters.ChannelPagerAdapter;
 import kr.azazel.barcode.reader.BarcodeConvertor;
 import kr.azazel.barcode.service.TextExtractorUtil;
+import kr.azazel.barcode.vo.BarcodeVo;
 
 
 public class MainActivity extends AzAppCompatActivity implements TedBottomPicker.OnImageSelectedListener, TedBottomPicker.OnCameraSelectedListener, TedBottomPicker.OnManualInputListener {
@@ -113,11 +116,21 @@ public class MainActivity extends AzAppCompatActivity implements TedBottomPicker
 
         mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
 
-        MobileAds.initialize(getApplicationContext(), "ca-app-pub-2972683856601428~5898078198");
+        Bundle bundle = new Bundle();
+        bundle.putString(FirebaseAnalytics.Param.ITEM_ID, "open");
+        mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);
+
+        MobileAds.initialize(this, new OnInitializationCompleteListener() {
+            @Override
+            public void onInitializationComplete(@NonNull InitializationStatus initializationStatus) {
+                LOG.d(TAG, "onInitializationComplete - " + initializationStatus);
+            }
+        });
         AdView mAdView = (AdView) findViewById(R.id.adView);
         AdRequest adRequest = new AdRequest.Builder()
-                .addTestDevice(AdRequest.DEVICE_ID_EMULATOR)        // All emulators
-                .addTestDevice("65D277459E8AF4600A1B5729752CF637")  // This is my gal 6 device ID
+
+//                .addTestDevice(AdRequest.DEVICE_ID_EMULATOR)        // All emulators
+//                .addTestDevice("65D277459E8AF4600A1B5729752CF637")  // This is my gal 6 device ID
                 .build();
         mAdView.loadAd(adRequest);
 
@@ -242,7 +255,7 @@ public class MainActivity extends AzAppCompatActivity implements TedBottomPicker
     }
 
     private void makeBarcodeUi(String barcodeValue, String barcodeFormat) {
-        Barcode barcode = BarcodeConvertor.convertZXingToGoogleType(barcodeValue, barcodeFormat);
+        BarcodeVo barcode = BarcodeConvertor.convertZXingToGoogleType(barcodeValue, barcodeFormat);
 
         makeBarcodeImage(null, barcode);
     }
@@ -324,9 +337,13 @@ public class MainActivity extends AzAppCompatActivity implements TedBottomPicker
 //                        Snackbar.make(view, "URL : " + uri, Snackbar.LENGTH_LONG)
 //                                .setAction("Action", null).show();
         if (uri != null) {
-            Barcode detected = BarcodeConvertor.detectBarcode(MainActivity.this, uri);
 
-            makeBarcodeImage(uri, detected);
+            BarcodeConvertor.detectBarcodeByGoogle(MainActivity.this, uri, (detected) -> {
+                makeBarcodeImage(uri, detected);
+            });
+
+//            BarcodeVo detected = BarcodeConvertor.detectBarcode(MainActivity.this, uri);
+//            makeBarcodeImage(uri, detected);
         }
     }
 
@@ -342,14 +359,14 @@ public class MainActivity extends AzAppCompatActivity implements TedBottomPicker
     }
 
 
-    private void makeBarcodeImage(final Uri org, final Barcode code) {
+    private void makeBarcodeImage(final Uri org, final BarcodeVo code) {
         if (code != null) {
-            final Bitmap bitmap = BarcodeConvertor.getBitmap(code.rawValue, code.format, AzAppConstants.BARCODE_IMG_WIDTH, AzAppConstants.BARCODE_IMG_HEIGHT);
+            final Bitmap bitmap = BarcodeConvertor.getBitmap(code.getRawValue(), code.getFormat(), AzAppConstants.BARCODE_IMG_WIDTH, AzAppConstants.BARCODE_IMG_HEIGHT);
 
             if (org != null) {
 
-                TextExtractorUtil.extractExpireDateInBackground(org);
-                
+                TextExtractorUtil.extractBarcodeInfoInBackground(org);
+
                 PopupUtil.showCoverImageCropPopup(this, org, new CropImageView.OnCropImageCompleteListener() {
                     @Override
                     public void onCropImageComplete(CropImageView view, CropImageView.CropResult result) {

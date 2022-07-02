@@ -4,8 +4,9 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.azazel.framework.util.LOG;
-import android.support.v7.app.AppCompatActivity;
 
 
 import java.lang.ref.WeakReference;

@@ -1,33 +1,40 @@
 package kr.azazel.barcode;
 
 import android.app.Activity;
+import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.graphics.Bitmap;
 import android.net.Uri;
-import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.CompoundButton;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.azazel.framework.util.AzUtil;
 import com.azazel.framework.util.LOG;
-import com.google.android.gms.vision.barcode.Barcode;
-import com.rey.material.app.DatePickerDialog;
-import com.rey.material.app.DialogFragment;
-import com.rey.material.app.ThemeManager;
+import com.google.firebase.analytics.FirebaseAnalytics;
 import com.squareup.picasso.Picasso;
 import com.theartofdev.edmodo.cropper.CropImageView;
 
 import java.io.File;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 import gun0912.tedbottompicker.TedBottomPicker;
+import kr.azazel.barcode.vo.BarcodeResponse;
+import kr.azazel.barcode.vo.BarcodeVo;
 import kr.azazel.barcode.vo.MyBarcode;
 
 /**
@@ -109,7 +116,7 @@ public class PopupUtil {
         }
     }
 
-    public static void showNewBarcodePopup(final AppCompatActivity activity, final Uri org, final Barcode code, final Bitmap codeImg, final Bitmap coverImg) {
+    public static void showNewBarcodePopup(final AppCompatActivity activity, final Uri org, final BarcodeVo code, final Bitmap codeImg, final Bitmap coverImg) {
         AzUtil.makeTransparentBackgroundDialog(activity, R.layout.popup_new_barcode, new AzUtil.OnAzDialogCreateListener() {
             MyBarcode.Category selectedCategory = MyBarcode.Category.MEMBERSHIP;
             long expirationDt = 0;
@@ -130,17 +137,22 @@ public class PopupUtil {
 
                 final RadioGroup cateSel = (RadioGroup) dialog.findViewById(R.id.radio_category);
 
-                String expireDate = MetaManager.getInstance().getExtractedExpireDate();
-                if (expireDate != null) {
+                BarcodeResponse barcodeResponse = MetaManager.getInstance().getTempBarcode();
+                if(barcodeResponse != null){
                     try {
-                        long time = new SimpleDateFormat("yyyy-MM-dd").parse(expireDate).getTime();
+                        etTitle.setText(barcodeResponse.getStore());
+                        etDesc.setText(barcodeResponse.getItem());
+                        long time = new SimpleDateFormat("yyyy-MM-dd").parse(barcodeResponse.getExpireDate()).getTime();
                         expirationDt = time;
-                        tvExpirationDt.setText(expireDate);
-                        selectedCategory = MyBarcode.Category.COUPON;
-                        layoutExpireDt.setVisibility(View.VISIBLE);
-                        MetaManager.getInstance().setExtractedExpireDate(null);
-                    } catch (ParseException e) {
+                        tvExpirationDt.setText(barcodeResponse.getExpireDate());
+                        selectedCategory = barcodeResponse.getCategory();
+                        if(selectedCategory == MyBarcode.Category.COUPON) {
+                            layoutExpireDt.setVisibility(View.VISIBLE);
+                        }
+                    } catch (Exception e) {
                         LOG.e(TAG, "expireDate parse error", e);
+                    }finally {
+                        MetaManager.getInstance().setTempBarcode(null);
                     }
                 }
 
@@ -163,7 +175,7 @@ public class PopupUtil {
                     });
                 }
 
-                ((TextView) dialog.findViewById(R.id.tv_code)).setText(code.rawValue);
+                ((TextView) dialog.findViewById(R.id.tv_code)).setText(code.getRawValue());
 
                 if (bitmapCover != null)
                     imgCover.setImageBitmap(bitmapCover);
@@ -201,7 +213,14 @@ public class PopupUtil {
                     public void onClick(View v) {
                         switch (v.getId()) {
                             case R.id.btn_ok: {
-                                boolean saved = MyBarcode.saveBarcode(selectedCategory.value(), code.rawValue, etTitle.getText().toString(), code.format
+                                Bundle bundle = new Bundle();
+                                bundle.putString(FirebaseAnalytics.Param.ITEM_ID, "barcode_save");
+                                bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, selectedCategory.value() + "");
+                                FirebaseAnalytics.getInstance(v.getContext())
+                                        .logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);
+
+
+                                boolean saved = MyBarcode.saveBarcode(selectedCategory.value(), code.getRawValue(), etTitle.getText().toString(), code.getFormat()
                                         , etDesc.getText().toString(), etBrand.getText().toString(), org, codeImg, bitmapCover, expirationDt);
 
                                 if (saved && org != null) {
@@ -251,31 +270,21 @@ public class PopupUtil {
                             }
                             case R.id.tv_expiredt_value:
                             case R.id.tv_expiredt: {
-                                boolean isLightTheme = ThemeManager.getInstance().getCurrentTheme() == 0;
-                                DatePickerDialog.Builder builder = new DatePickerDialog.Builder(isLightTheme ? R.style.Material_App_Dialog_DatePicker_Light : R.style.Material_App_Dialog_DatePicker) {
+                                LocalDateTime localDateTime = expirationDt > 0 ?
+                                        LocalDateTime.ofInstant(Instant.ofEpochMilli(expirationDt), ZoneId.systemDefault()) :
+                                        LocalDateTime.now();
+
+                                DatePickerDialog dialog = new DatePickerDialog(activity, new DatePickerDialog.OnDateSetListener() {
                                     @Override
-                                    public void onPositiveActionClicked(DialogFragment fragment) {
-                                        DatePickerDialog dateDialog = (DatePickerDialog) fragment.getDialog();
-                                        expirationDt = dateDialog.getDate();
+                                    public void onDateSet(DatePicker datePicker, int i, int i1, int i2) {
+                                        expirationDt = LocalDate.of(i, i1 + 1, i2).atTime(0, 0)
+                                                .atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
 
-                                        tvExpirationDt.setText(AzUtil.getLongDateStringFromMils(dialog.getContext(), expirationDt, false));
-
-                                        super.onPositiveActionClicked(fragment);
+                                        tvExpirationDt.setText(AzUtil.getLongDateStringFromMils(activity, expirationDt, false));
                                     }
+                                }, localDateTime.getYear(), localDateTime.getMonthValue() - 1, localDateTime.getDayOfMonth());
+                                dialog.show();
 
-                                    @Override
-                                    public void onNegativeActionClicked(DialogFragment fragment) {
-                                        super.onNegativeActionClicked(fragment);
-                                    }
-                                };
-
-                                if (expirationDt > 0)
-                                    builder.date(expirationDt);
-                                builder.positiveAction(activity.getString(android.R.string.ok))
-                                        .negativeAction(activity.getString(android.R.string.cancel));
-
-                                DialogFragment fragment = DialogFragment.newInstance(builder);
-                                fragment.show(activity.getSupportFragmentManager(), TAG);
                                 break;
                             }
                         }
@@ -408,31 +417,20 @@ public class PopupUtil {
                             }
                             case R.id.tv_expiredt_value:
                             case R.id.tv_expiredt: {
-                                boolean isLightTheme = ThemeManager.getInstance().getCurrentTheme() == 0;
-                                DatePickerDialog.Builder builder = new DatePickerDialog.Builder(isLightTheme ? R.style.Material_App_Dialog_DatePicker_Light : R.style.Material_App_Dialog_DatePicker) {
+                                LocalDateTime localDateTime = barcode.expirationDate > 0 ?
+                                        LocalDateTime.ofInstant(Instant.ofEpochMilli(barcode.expirationDate), ZoneId.systemDefault()) :
+                                        LocalDateTime.now();
+
+                                DatePickerDialog dialog = new DatePickerDialog(activity, new DatePickerDialog.OnDateSetListener() {
                                     @Override
-                                    public void onPositiveActionClicked(DialogFragment fragment) {
-                                        DatePickerDialog dateDialog = (DatePickerDialog) fragment.getDialog();
-                                        barcode.expirationDate = dateDialog.getDate();
+                                    public void onDateSet(DatePicker datePicker, int i, int i1, int i2) {
+                                        barcode.expirationDate = LocalDate.of(i, i1 + 1, i2).atTime(0, 0)
+                                                .atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
 
-                                        tvExpirationDt.setText(AzUtil.getLongDateStringFromMils(dialog.getContext(), barcode.expirationDate, false));
-
-                                        super.onPositiveActionClicked(fragment);
+                                        tvExpirationDt.setText(AzUtil.getLongDateStringFromMils(activity, barcode.expirationDate, false));
                                     }
-
-                                    @Override
-                                    public void onNegativeActionClicked(DialogFragment fragment) {
-                                        super.onNegativeActionClicked(fragment);
-                                    }
-                                };
-
-                                if (barcode.expirationDate > 0)
-                                    builder.date(barcode.expirationDate);
-                                builder.positiveAction(activity.getString(android.R.string.ok))
-                                        .negativeAction(activity.getString(android.R.string.cancel));
-
-                                DialogFragment fragment = DialogFragment.newInstance(builder);
-                                fragment.show(activity.getSupportFragmentManager(), TAG);
+                                }, localDateTime.getYear(), localDateTime.getMonthValue() - 1, localDateTime.getDayOfMonth());
+                                dialog.show();
                                 break;
                             }
                         }

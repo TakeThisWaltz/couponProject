@@ -10,6 +10,7 @@ import com.azazel.framework.network.HttpRequestBuilder;
 import com.azazel.framework.network.NetworkUtil;
 import com.azazel.framework.util.LOG;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.List;
@@ -18,6 +19,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import kr.azazel.barcode.MetaManager;
+import kr.azazel.barcode.vo.BarcodeResponse;
 
 public class TextExtractorUtil {
     private static final String TAG = "TextExtractorUtil";
@@ -93,6 +95,69 @@ public class TextExtractorUtil {
                     date = (String) value;
                 }
                 MetaManager.getInstance().setExtractedExpireDate(date);
+            }
+        });
+    }
+
+    public static void extractBarcodeInfoInBackground(Uri uri) {
+        MetaManager.getInstance().setTempBarcode(null);
+        AzApplication.executeJobOnBackground(new AzSimpleWorker() {
+            @Override
+            public void doInBackgroundAndResult() {
+                try {
+                    String text = OcrUtil.extractText(uri);
+
+                    String apiUrl = "http://az-elb-49526221.ap-northeast-2.elb.amazonaws.com/api/barcode/extract";
+                    HttpRequestBuilder.create(apiUrl, apiUrl, AzHttpRequestConfig.HTTP_AZ_CONFIG)
+                            .setMethod(HttpRequestBuilder.HttpMethod.POST)
+                            .setPayload("application/json",
+                                    objectMapper.writeValueAsString(Map.of("rawText", text)))
+                            .execute(new NetworkUtil.StringResponseHandler() {
+                                @Override
+                                public void handleResponse(int statusCode, String body) {
+                                    if (statusCode == 200 && body != null) {
+                                        try {
+                                            JsonNode barcode = objectMapper.readTree(body).get("content");
+                                            BarcodeResponse barcodeResponse = new BarcodeResponse();
+                                            if(barcode.has("expireDate")){
+                                                barcodeResponse.setExpireDate(barcode.get("expireDate").asText()
+                                                        .split("T")[0]);
+                                            }
+                                            if(barcode.has("type")){
+                                                barcodeResponse.setType(barcode.get("type").asText());
+                                            }
+                                            if(barcode.has("store")){
+                                                barcodeResponse.setStore(barcode.get("store").asText());
+                                            }
+                                            if(barcode.has("itemName")){
+                                                barcodeResponse.setItem(barcode.get("itemName").asText());
+                                            }
+
+                                            setResult(true, barcodeResponse);
+                                        } catch (JsonProcessingException jsone) {
+                                            LOG.e(TAG, "extractExpireDateInBackground json err", jsone);
+                                        } catch (Exception e) {
+                                            LOG.e(TAG, "extractExpireDateInBackground err", e);
+                                        }
+                                    }
+                                }
+                            });
+
+//                    String date = TextExtractorUtil.extractExpireDate(text);
+//                    setResult(true, date);
+                } catch (Exception e) {
+                    LOG.e(TAG, "extractExpireDateInBackground http err", e);
+                    setResult(false, null);
+                }
+            }
+
+            @Override
+            public void postOperationWithResult(boolean result, Object value) {
+                BarcodeResponse data = null;
+                if (result && value != null) {
+                    data = (BarcodeResponse) value;
+                }
+                MetaManager.getInstance().setTempBarcode(data);
             }
         });
     }

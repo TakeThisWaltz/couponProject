@@ -6,7 +6,8 @@ import android.content.Context;
 import android.database.Cursor;
 import android.os.Handler;
 import android.os.Message;
-import android.support.v4.widget.CursorAdapter;
+
+import androidx.cursoradapter.widget.CursorAdapter;
 
 import com.azazel.framework.util.LOG;
 

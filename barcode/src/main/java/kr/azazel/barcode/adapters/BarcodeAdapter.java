@@ -13,14 +13,17 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
-import android.support.v7.app.AppCompatActivity;
+
 import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.BaseAdapter;
 import android.widget.CursorAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.azazel.framework.AzApplication;
 import com.azazel.framework.util.LOG;
@@ -129,9 +132,9 @@ public class BarcodeAdapter implements ICursorAdapter {
 
         holder.tvCoverDesc.setText(barcode.description);
         if (barcode.expirationDate > 0) {
-            LocalDate expireDate = LocalDateTime.ofInstant(Instant.ofEpochMilli(barcode.expirationDate), TimeZone.getDefault().toZoneId()).toLocalDate();
+            LocalDate expireDate =LocalDateTime.ofInstant(Instant.ofEpochMilli(barcode.expirationDate), TimeZone.getDefault().toZoneId()).toLocalDate();
             long dDay = expireDate.until(LocalDate.now(), ChronoUnit.DAYS);
-            holder.tvCoverExpired.setText(android.text.format.DateFormat.format(context.getString(R.string.expiredt_format), barcode.expirationDate) + "\n(D " + (dDay > 0 ? "+" : "") + dDay + ")");
+            holder.tvCoverExpired.setText(android.text.format.DateFormat.format(context.getString(R.string.expiredt_format), barcode.expirationDate) + "\n(D " + (dDay>0?"+":"") + dDay + ")");
             holder.tvCoverExpired.setVisibility(View.VISIBLE);
         } else holder.tvCoverExpired.setVisibility(View.GONE);
 
