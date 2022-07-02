@@ -28,6 +28,8 @@ import androidx.viewpager.widget.ViewPager;
 import com.azazel.framework.AzAppCompatActivity;
 import com.azazel.framework.AzApplication;
 import com.azazel.framework.util.LOG;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.MobileAds;
 import com.google.android.gms.ads.initialization.InitializationStatus;
 import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
@@ -114,18 +116,23 @@ public class MainActivity extends AzAppCompatActivity implements TedBottomPicker
 
         mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
 
-        MobileAds.initialize(getApplicationContext(), new OnInitializationCompleteListener() {
+        Bundle bundle = new Bundle();
+        bundle.putString(FirebaseAnalytics.Param.ITEM_ID, "open");
+        mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);
+
+        MobileAds.initialize(this, new OnInitializationCompleteListener() {
             @Override
             public void onInitializationComplete(@NonNull InitializationStatus initializationStatus) {
                 LOG.d(TAG, "onInitializationComplete - " + initializationStatus);
             }
         });
-//        AdView mAdView = (AdView) findViewById(R.id.adView);
-//        AdRequest adRequest = new AdRequest.Builder()
-////                .addTestDevice(AdRequest.DEVICE_ID_EMULATOR)        // All emulators
-////                .addTestDevice("65D277459E8AF4600A1B5729752CF637")  // This is my gal 6 device ID
-//                .build();
-//        mAdView.loadAd(adRequest);
+        AdView mAdView = (AdView) findViewById(R.id.adView);
+        AdRequest adRequest = new AdRequest.Builder()
+
+//                .addTestDevice(AdRequest.DEVICE_ID_EMULATOR)        // All emulators
+//                .addTestDevice("65D277459E8AF4600A1B5729752CF637")  // This is my gal 6 device ID
+                .build();
+        mAdView.loadAd(adRequest);
 
 
         //((ImageView)findViewById(R.id.img_test)).setImageBitmap(BitmapFactory.decodeFile("/data/data/com.azazel.barcode/files/barcode_1"));

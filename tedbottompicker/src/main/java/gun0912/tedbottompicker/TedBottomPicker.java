@@ -11,7 +11,6 @@ import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
-
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -146,8 +145,8 @@ public class TedBottomPicker extends BottomSheetDialogFragment {
 
         tv_title = (TextView) contentView.findViewById(R.id.tv_title);
         if (builder.onManualInputListener != null) {
-            EditText etManualInput = new EditText(contentView.getContext());
             contentView.findViewById(R.id.tv_add_manual).setOnClickListener(v -> {
+                EditText etManualInput = new EditText(contentView.getContext());
                 new AlertDialog.Builder(contentView.getContext())
                         .setTitle(R.string.alert_input_barcode)
                         .setView(etManualInput)

@@ -6,8 +6,8 @@ android {
         applicationId "kr.azazel.barcode"
         minSdkVersion 24
         targetSdkVersion 31
-        versionCode 33
-        versionName "3.3"
+        versionCode 36
+        versionName "3.6"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
     }

@@ -1,12 +1,15 @@
 package kr.azazel.barcode;
 
 import android.app.Activity;
+import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.CompoundButton;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RadioButton;
@@ -17,15 +20,17 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.azazel.framework.util.AzUtil;
 import com.azazel.framework.util.LOG;
-import com.rey.material.app.DatePickerDialog;
-import com.rey.material.app.DialogFragment;
-import com.rey.material.app.ThemeManager;
+import com.google.firebase.analytics.FirebaseAnalytics;
 import com.squareup.picasso.Picasso;
 import com.theartofdev.edmodo.cropper.CropImageView;
 
 import java.io.File;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 import gun0912.tedbottompicker.TedBottomPicker;
 import kr.azazel.barcode.vo.BarcodeVo;
@@ -202,6 +207,13 @@ public class PopupUtil {
                     public void onClick(View v) {
                         switch (v.getId()) {
                             case R.id.btn_ok: {
+                                Bundle bundle = new Bundle();
+                                bundle.putString(FirebaseAnalytics.Param.ITEM_ID, "barcode_save");
+                                bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, selectedCategory.value() + "");
+                                FirebaseAnalytics.getInstance(v.getContext())
+                                        .logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);
+
+
                                 boolean saved = MyBarcode.saveBarcode(selectedCategory.value(), code.getRawValue(), etTitle.getText().toString(), code.getFormat()
                                         , etDesc.getText().toString(), etBrand.getText().toString(), org, codeImg, bitmapCover, expirationDt);
 
@@ -252,31 +264,21 @@ public class PopupUtil {
                             }
                             case R.id.tv_expiredt_value:
                             case R.id.tv_expiredt: {
-                                boolean isLightTheme = ThemeManager.getInstance().getCurrentTheme() == 0;
-                                DatePickerDialog.Builder builder = new DatePickerDialog.Builder(isLightTheme ? R.style.Material_App_Dialog_DatePicker_Light : R.style.Material_App_Dialog_DatePicker) {
+                                LocalDateTime localDateTime = expirationDt > 0 ?
+                                        LocalDateTime.ofInstant(Instant.ofEpochMilli(expirationDt), ZoneId.systemDefault()) :
+                                        LocalDateTime.now();
+
+                                DatePickerDialog dialog = new DatePickerDialog(activity, new DatePickerDialog.OnDateSetListener() {
                                     @Override
-                                    public void onPositiveActionClicked(DialogFragment fragment) {
-                                        DatePickerDialog dateDialog = (DatePickerDialog) fragment.getDialog();
-                                        expirationDt = dateDialog.getDate();
+                                    public void onDateSet(DatePicker datePicker, int i, int i1, int i2) {
+                                        expirationDt = LocalDate.of(i, i1 + 1, i2).atTime(0, 0)
+                                                .atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
 
-                                        tvExpirationDt.setText(AzUtil.getLongDateStringFromMils(dialog.getContext(), expirationDt, false));
-
-                                        super.onPositiveActionClicked(fragment);
+                                        tvExpirationDt.setText(AzUtil.getLongDateStringFromMils(activity, expirationDt, false));
                                     }
+                                }, localDateTime.getYear(), localDateTime.getMonthValue() - 1, localDateTime.getDayOfMonth());
+                                dialog.show();
 
-                                    @Override
-                                    public void onNegativeActionClicked(DialogFragment fragment) {
-                                        super.onNegativeActionClicked(fragment);
-                                    }
-                                };
-
-                                if (expirationDt > 0)
-                                    builder.date(expirationDt);
-                                builder.positiveAction(activity.getString(android.R.string.ok))
-                                        .negativeAction(activity.getString(android.R.string.cancel));
-
-                                DialogFragment fragment = DialogFragment.newInstance(builder);
-                                fragment.show(activity.getSupportFragmentManager(), TAG);
                                 break;
                             }
                         }
@@ -409,31 +411,20 @@ public class PopupUtil {
                             }
                             case R.id.tv_expiredt_value:
                             case R.id.tv_expiredt: {
-                                boolean isLightTheme = ThemeManager.getInstance().getCurrentTheme() == 0;
-                                DatePickerDialog.Builder builder = new DatePickerDialog.Builder(isLightTheme ? R.style.Material_App_Dialog_DatePicker_Light : R.style.Material_App_Dialog_DatePicker) {
+                                LocalDateTime localDateTime = barcode.expirationDate > 0 ?
+                                        LocalDateTime.ofInstant(Instant.ofEpochMilli(barcode.expirationDate), ZoneId.systemDefault()) :
+                                        LocalDateTime.now();
+
+                                DatePickerDialog dialog = new DatePickerDialog(activity, new DatePickerDialog.OnDateSetListener() {
                                     @Override
-                                    public void onPositiveActionClicked(DialogFragment fragment) {
-                                        DatePickerDialog dateDialog = (DatePickerDialog) fragment.getDialog();
-                                        barcode.expirationDate = dateDialog.getDate();
+                                    public void onDateSet(DatePicker datePicker, int i, int i1, int i2) {
+                                        barcode.expirationDate = LocalDate.of(i, i1 + 1, i2).atTime(0, 0)
+                                                .atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
 
-                                        tvExpirationDt.setText(AzUtil.getLongDateStringFromMils(dialog.getContext(), barcode.expirationDate, false));
-
-                                        super.onPositiveActionClicked(fragment);
+                                        tvExpirationDt.setText(AzUtil.getLongDateStringFromMils(activity, barcode.expirationDate, false));
                                     }
-
-                                    @Override
-                                    public void onNegativeActionClicked(DialogFragment fragment) {
-                                        super.onNegativeActionClicked(fragment);
-                                    }
-                                };
-
-                                if (barcode.expirationDate > 0)
-                                    builder.date(barcode.expirationDate);
-                                builder.positiveAction(activity.getString(android.R.string.ok))
-                                        .negativeAction(activity.getString(android.R.string.cancel));
-
-                                DialogFragment fragment = DialogFragment.newInstance(builder);
-                                fragment.show(activity.getSupportFragmentManager(), TAG);
+                                }, localDateTime.getYear(), localDateTime.getMonthValue() - 1, localDateTime.getDayOfMonth());
+                                dialog.show();
                                 break;
                             }
                         }
