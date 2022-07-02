@@ -338,31 +338,12 @@ public class MainActivity extends AzAppCompatActivity implements TedBottomPicker
 //                                .setAction("Action", null).show();
         if (uri != null) {
 
-//            AzApplication.executeJobOnBackground(new AzSimpleWorker() {
-//                @Override
-//                public void doInBackgroundAndResult() {
-//                    BarcodeConvertor.detectBarcode(MainActivity.this, uri, (detected)->{
-////                        makeBarcodeImage(uri, detected);
-//                        setResult(true, detected);
-//                    });
-//
-//                }
-//
-//                @Override
-//                public void postOperationWithResult(boolean result, Object value) {
-//                    if(result)
-//                        makeBarcodeImage(uri, (Barcode) value);
-//                }
-//            });
-//
-////            BarcodeConvertor.detectBarcode(MainActivity.this, uri, (detected)->{
-////                makeBarcodeImage(uri, detected);
-////            });
+            BarcodeConvertor.detectBarcodeByGoogle(MainActivity.this, uri, (detected) -> {
+                makeBarcodeImage(uri, detected);
+            });
 
-//            BarcodeConvertor.detectBarcodeByGoogle(MainActivity.this, uri);
-
-            BarcodeVo detected = BarcodeConvertor.detectBarcode(MainActivity.this, uri);
-            makeBarcodeImage(uri, detected);
+//            BarcodeVo detected = BarcodeConvertor.detectBarcode(MainActivity.this, uri);
+//            makeBarcodeImage(uri, detected);
         }
     }
 
@@ -384,7 +365,7 @@ public class MainActivity extends AzAppCompatActivity implements TedBottomPicker
 
             if (org != null) {
 
-                TextExtractorUtil.extractExpireDateInBackground(org);
+                TextExtractorUtil.extractBarcodeInfoInBackground(org);
 
                 PopupUtil.showCoverImageCropPopup(this, org, new CropImageView.OnCropImageCompleteListener() {
                     @Override

@@ -19,6 +19,7 @@ import android.net.Uri;
 import android.provider.MediaStore;
 
 import androidx.annotation.NonNull;
+import androidx.core.util.Consumer;
 
 import com.azazel.framework.util.LOG;
 import com.azazel.framework.util.MemoryUtil;
@@ -41,7 +42,6 @@ import com.google.zxing.common.BitMatrix;
 import com.google.zxing.common.HybridBinarizer;
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
 import com.google.zxing.qrcode.encoder.ByteMatrix;
-import com.google.zxing.qrcode.encoder.Encoder;
 import com.google.zxing.qrcode.encoder.QRCode;
 
 import java.io.FileNotFoundException;
@@ -94,7 +94,7 @@ public class BarcodeConvertor {
         return null;
     }
 
-    public static void detectBarcodeByGoogle(Context context, Uri uri) {
+    public static void detectBarcodeByGoogle(Context context, Uri uri, Consumer<BarcodeVo> consumer) {
         LOG.d(TAG, "detectBarcode : " + uri + ", space : " + MemoryUtil.getPercentageMemoryFree(context));
 
         Bitmap bitmap = null;
@@ -104,15 +104,22 @@ public class BarcodeConvertor {
 
             detector = BarcodeScanning.getClient();
 
-            detector.process(InputImage.fromBitmap(bitmap, 0)).addOnSuccessListener(new OnSuccessListener<List<Barcode>>() {
+            //detector.process(InputImage.fromBitmap(bitmap, 0))
+            detector.process(InputImage.fromFilePath(context, uri))
+                    .addOnSuccessListener(new OnSuccessListener<List<Barcode>>() {
                         @Override
                         public void onSuccess(List<Barcode> barcodes) {
+                            BarcodeVo barcode = null;
                             if (barcodes != null && barcodes.size() > 0) {
                                 Barcode result = barcodes.get(0);
+                                barcode = new BarcodeVo();
+                                barcode.setRawValue(result.getRawValue());
+                                barcode.setFormat(result.getFormat());
                                 LOG.d(TAG, "detectBarcode - found : " + result.getRawValue() + ", type : " + result.getFormat());
                             } else
                                 LOG.e(TAG, "No barcode is found... : " + barcodes);
 
+                            consumer.accept(barcode);
                         }
                     })
                     .addOnFailureListener(new OnFailureListener() {
@@ -121,6 +128,7 @@ public class BarcodeConvertor {
                             // Task failed with an exception
                             // ...
                             LOG.e(TAG, "detectBarcodeByGoogle err", e);
+                            consumer.accept(null);
                         }
                     });
 
@@ -338,7 +346,7 @@ public class BarcodeConvertor {
 //                result = renderResult(code, img_width, img_height, quietZone);
 //            } else {
 
-                result = new MultiFormatWriter().encode(contents, format, img_width, img_height, hints);
+            result = new MultiFormatWriter().encode(contents, format, img_width, img_height, hints);
 //            }
         } catch (IllegalArgumentException iae) {
             // Unsupported format

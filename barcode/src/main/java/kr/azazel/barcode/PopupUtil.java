@@ -33,6 +33,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 
 import gun0912.tedbottompicker.TedBottomPicker;
+import kr.azazel.barcode.vo.BarcodeResponse;
 import kr.azazel.barcode.vo.BarcodeVo;
 import kr.azazel.barcode.vo.MyBarcode;
 
@@ -136,17 +137,22 @@ public class PopupUtil {
 
                 final RadioGroup cateSel = (RadioGroup) dialog.findViewById(R.id.radio_category);
 
-                String expireDate = MetaManager.getInstance().getExtractedExpireDate();
-                if (expireDate != null) {
+                BarcodeResponse barcodeResponse = MetaManager.getInstance().getTempBarcode();
+                if(barcodeResponse != null){
                     try {
-                        long time = new SimpleDateFormat("yyyy-MM-dd").parse(expireDate).getTime();
+                        etTitle.setText(barcodeResponse.getStore());
+                        etDesc.setText(barcodeResponse.getItem());
+                        long time = new SimpleDateFormat("yyyy-MM-dd").parse(barcodeResponse.getExpireDate()).getTime();
                         expirationDt = time;
-                        tvExpirationDt.setText(expireDate);
-                        selectedCategory = MyBarcode.Category.COUPON;
-                        layoutExpireDt.setVisibility(View.VISIBLE);
-                        MetaManager.getInstance().setExtractedExpireDate(null);
-                    } catch (ParseException e) {
+                        tvExpirationDt.setText(barcodeResponse.getExpireDate());
+                        selectedCategory = barcodeResponse.getCategory();
+                        if(selectedCategory == MyBarcode.Category.COUPON) {
+                            layoutExpireDt.setVisibility(View.VISIBLE);
+                        }
+                    } catch (Exception e) {
                         LOG.e(TAG, "expireDate parse error", e);
+                    }finally {
+                        MetaManager.getInstance().setTempBarcode(null);
                     }
                 }
 
