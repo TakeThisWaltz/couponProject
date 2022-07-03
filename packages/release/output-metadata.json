@@ -11,8 +11,8 @@
       "type": "SINGLE",
       "filters": [],
       "attributes": [],
-      "versionCode": 38,
-      "versionName": "3.8",
+      "versionCode": 43,
+      "versionName": "4.3",
       "outputFile": "barcode-release.apk"
     }
   ],

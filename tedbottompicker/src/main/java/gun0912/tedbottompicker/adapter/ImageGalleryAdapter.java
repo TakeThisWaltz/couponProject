@@ -5,7 +5,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.MediaStore;
-
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -68,8 +67,10 @@ public class ImageGalleryAdapter extends RecyclerView.Adapter<ImageGalleryAdapte
                 while (imageCursor.moveToNext() && count < builder.maxCount) {
                     String imageLocation = imageCursor.getString(imageCursor.getColumnIndex(MediaStore.Images.Media.DATA));
                     File imageFile = new File(imageLocation);
-                    pickerTiles.add(new PickerTile(Uri.fromFile(imageFile)));
-                    count++;
+                    if (imageFile.exists() && imageFile.length() > 0) {
+                        pickerTiles.add(new PickerTile(Uri.fromFile(imageFile)));
+                        count++;
+                    }
 
                 }
 

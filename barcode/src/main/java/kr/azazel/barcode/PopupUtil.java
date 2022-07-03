@@ -25,7 +25,6 @@ import com.squareup.picasso.Picasso;
 import com.theartofdev.edmodo.cropper.CropImageView;
 
 import java.io.File;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -138,20 +137,22 @@ public class PopupUtil {
                 final RadioGroup cateSel = (RadioGroup) dialog.findViewById(R.id.radio_category);
 
                 BarcodeResponse barcodeResponse = MetaManager.getInstance().getTempBarcode();
-                if(barcodeResponse != null){
+                if (barcodeResponse != null) {
                     try {
                         etTitle.setText(barcodeResponse.getStore());
                         etDesc.setText(barcodeResponse.getItem());
-                        long time = new SimpleDateFormat("yyyy-MM-dd").parse(barcodeResponse.getExpireDate()).getTime();
-                        expirationDt = time;
-                        tvExpirationDt.setText(barcodeResponse.getExpireDate());
+                        if (!TextUtils.isEmpty(barcodeResponse.getExpireDate())) {
+                            long time = new SimpleDateFormat("yyyy-MM-dd").parse(barcodeResponse.getExpireDate()).getTime();
+                            expirationDt = time;
+                            tvExpirationDt.setText(barcodeResponse.getExpireDate());
+                        }
                         selectedCategory = barcodeResponse.getCategory();
-                        if(selectedCategory == MyBarcode.Category.COUPON) {
+                        if (selectedCategory == MyBarcode.Category.COUPON) {
                             layoutExpireDt.setVisibility(View.VISIBLE);
                         }
                     } catch (Exception e) {
                         LOG.e(TAG, "expireDate parse error", e);
-                    }finally {
+                    } finally {
                         MetaManager.getInstance().setTempBarcode(null);
                     }
                 }

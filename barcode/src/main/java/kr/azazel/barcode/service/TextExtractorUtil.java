@@ -1,6 +1,7 @@
 package kr.azazel.barcode.service;
 
 import android.net.Uri;
+import android.text.TextUtils;
 import android.util.Pair;
 
 import com.azazel.framework.AzApplication;
@@ -71,7 +72,7 @@ public class TextExtractorUtil {
                                 public void handleResponse(int statusCode, String body) {
                                     if (statusCode == 200 && body != null) {
                                         try {
-                                            String expiredate = objectMapper.readTree(body).get("content").asText();
+                                            String expiredate = objectMapper.readTree(body).get("content").textValue();
                                             setResult(true, expiredate);
                                         } catch (JsonProcessingException e) {
                                             LOG.e(TAG, "extractExpireDateInBackground json err", e);
@@ -119,18 +120,18 @@ public class TextExtractorUtil {
                                         try {
                                             JsonNode barcode = objectMapper.readTree(body).get("content");
                                             BarcodeResponse barcodeResponse = new BarcodeResponse();
-                                            if(barcode.has("expireDate")){
-                                                barcodeResponse.setExpireDate(barcode.get("expireDate").asText()
+                                            if(barcode.has("expireDate") && !TextUtils.isEmpty(barcode.get("expireDate").textValue())){
+                                                barcodeResponse.setExpireDate(barcode.get("expireDate").textValue()
                                                         .split("T")[0]);
                                             }
                                             if(barcode.has("type")){
-                                                barcodeResponse.setType(barcode.get("type").asText());
+                                                barcodeResponse.setType(barcode.get("type").textValue());
                                             }
                                             if(barcode.has("store")){
-                                                barcodeResponse.setStore(barcode.get("store").asText());
+                                                barcodeResponse.setStore(barcode.get("store").textValue());
                                             }
                                             if(barcode.has("itemName")){
-                                                barcodeResponse.setItem(barcode.get("itemName").asText());
+                                                barcodeResponse.setItem(barcode.get("itemName").textValue());
                                             }
 
                                             setResult(true, barcodeResponse);

@@ -27,6 +27,7 @@ import androidx.annotation.StringRes;
 import androidx.appcompat.app.AlertDialog;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.GridLayoutManager;
@@ -244,8 +245,8 @@ public class TedBottomPicker extends BottomSheetDialogFragment {
                 return;
             }
 
-            File imageFile = getImageFile();
-            cameraInent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(imageFile));
+            Uri imageFile = getImageFile();
+            cameraInent.putExtra(MediaStore.EXTRA_OUTPUT, imageFile);
             startActivityForResult(cameraInent, REQ_CODE_CAMERA);
         }
     }
@@ -261,7 +262,7 @@ public class TedBottomPicker extends BottomSheetDialogFragment {
 
     }
 
-    private File getImageFile() {
+    private Uri getImageFile() {
         // Create an image file name
         File imageFile = null;
         try {
@@ -278,14 +279,16 @@ public class TedBottomPicker extends BottomSheetDialogFragment {
 
 
             // Save a file: path for use with ACTION_VIEW intents
-            cameraImageUri = Uri.fromFile(imageFile);
+//            cameraImageUri = Uri.fromFile(imageFile);
+            cameraImageUri = FileProvider.getUriForFile(getContext(), "kr.azazel.barcode.fileprovider", imageFile);
+
         } catch (IOException e) {
             e.printStackTrace();
             errorMessage("Could not create imageFile for camera");
         }
 
 
-        return imageFile;
+        return cameraImageUri;
     }
 
     @Override

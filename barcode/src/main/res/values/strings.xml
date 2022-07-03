@@ -12,7 +12,7 @@
     <string name="no_expiredt">None</string>
     <string name="expiredt_format">Exp: MM/dd</string>
 
-    <string name="no_barcode">There is no registered barcode.\nRegister new barcode using + button.</string>
+    <string name="no_barcode">You can add barcodes using the + button.</string>
     <string name="title_cover_image_crop">Crop the cover image.</string>
 
     <string name="btn_crop">Crop</string>
