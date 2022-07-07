@@ -3,6 +3,7 @@ package kr.azazel.barcode.vo;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.text.TextUtils;
 
 import com.azazel.framework.AzApplication;
 import com.azazel.framework.util.FileTool;
@@ -132,8 +133,12 @@ public class MyBarcode {
     }
 
     public void delete() {
-        FileTool.deleteFile(barcodeImage);
-        FileTool.deleteFile(coverImage);
+        if (!TextUtils.isEmpty(barcodeImage))
+            FileTool.deleteFile(barcodeImage);
+        if (!TextUtils.isEmpty(barcodeImage))
+            FileTool.deleteFile(coverImage);
+        if (!TextUtils.isEmpty(originImage))
+            FileTool.deleteFile(originImage);
 
         AzAppDataHelper.getInstance().deleteBarcode(id);
         AzApplication.APP_CONTEXT.getContentResolver().notifyChange(AzAppConstants.URI.BARCODE_LIST, null);
