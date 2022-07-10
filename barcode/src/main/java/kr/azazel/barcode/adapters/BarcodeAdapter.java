@@ -90,9 +90,10 @@ public class BarcodeAdapter implements ICursorAdapter {
 //                holder.mImageViewCover.setImageBitmap(BitmapFactory.decodeFile(barcode.barcodeImage));
 //                holder.mImageViewDetail.setImageBitmap(BitmapFactory.decodeFile(barcode.barcodeImage));
 //                // Bind data
-        final Uri imageCode = Uri.fromFile(new File(barcode.barcodeImage));
-        Picasso.with(holder.mFoldableLayout.getContext()).load(imageCode).into(holder.imgDetail);
-
+        if(!TextUtils.isEmpty(barcode.barcodeImage)) {
+            final Uri imageCode = Uri.fromFile(new File(barcode.barcodeImage));
+            Picasso.with(holder.mFoldableLayout.getContext()).load(imageCode).into(holder.imgDetail);
+        }
         if (TextUtils.isEmpty(barcode.coverImage)) {
             holder.imgCover.setImageResource(R.mipmap.ic_default);
         } else {

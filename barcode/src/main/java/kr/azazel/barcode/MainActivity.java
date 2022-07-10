@@ -363,19 +363,23 @@ public class MainActivity extends AzAppCompatActivity implements TedBottomPicker
         if (code != null) {
             final Bitmap bitmap = BarcodeConvertor.getBitmap(code.getRawValue(), code.getFormat(), AzAppConstants.BARCODE_IMG_WIDTH, AzAppConstants.BARCODE_IMG_HEIGHT);
 
-            if (org != null) {
+            if (bitmap != null) {
+                if (org != null) {
 
-                TextExtractorUtil.extractBarcodeInfoInBackground(org);
+                    TextExtractorUtil.extractBarcodeInfoInBackground(org);
 
-                PopupUtil.showCoverImageCropPopup(this, org, new CropImageView.OnCropImageCompleteListener() {
-                    @Override
-                    public void onCropImageComplete(CropImageView view, CropImageView.CropResult result) {
+                    PopupUtil.showCoverImageCropPopup(this, org, new CropImageView.OnCropImageCompleteListener() {
+                        @Override
+                        public void onCropImageComplete(CropImageView view, CropImageView.CropResult result) {
 
-                        PopupUtil.showNewBarcodePopup(MainActivity.this, org, code, bitmap, (result != null ? result.getBitmap() : null));
-                    }
-                });
+                            PopupUtil.showNewBarcodePopup(MainActivity.this, org, code, bitmap, (result != null ? result.getBitmap() : null));
+                        }
+                    });
+                } else {
+                    PopupUtil.showNewBarcodePopup(MainActivity.this, org, code, bitmap, null);
+                }
             } else {
-                PopupUtil.showNewBarcodePopup(MainActivity.this, org, code, bitmap, null);
+                Toast.makeText(this, R.string.toast_no_barcode, Toast.LENGTH_LONG).show();
             }
         } else {
             Toast.makeText(this, R.string.toast_no_barcode, Toast.LENGTH_LONG).show();

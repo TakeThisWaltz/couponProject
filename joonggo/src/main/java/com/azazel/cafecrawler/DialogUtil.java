@@ -7,9 +7,10 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
-import android.support.annotation.RequiresApi;
-import android.support.v4.content.FileProvider;
-import android.support.v7.app.AlertDialog;
+
+import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AlertDialog;
+import androidx.core.content.FileProvider;
 import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.View;
@@ -229,8 +230,8 @@ public class DialogUtil {
                                 "document.querySelector('div.footer_fix').style.display = 'none';" +
                                 "}catch(err){}" +
                                 "window.azWebObject.receiveFromWeb((document.querySelector('div.post_com')?document.querySelector('div.post_com').innerHTML:'') + document.querySelector('#postContent').innerHTML.replace(/(<([^>]+)>)/gi, ''));" +
-                                "var azSmsLink = document.querySelector('#smsLink');" +
-                                "var azCallLink = document.querySelector('#dialLink');" +
+                                "var azSmsLink = document.querySelectorAll('div.contact_area div.contact_info a')[0];" +
+                                "var azCallLink = document.querySelectorAll('div.contact_area div.contact_info a')[1];" +
                                 "if(azCallLink){ console.log('azCallLink : ' + azCallLink.href); if(azCallLink.href.endsWith('#')) azCallLink.click(); }" +
                                 "if(azSmsLink){ console.log('smsLink : ' + azSmsLink.href); if(azSmsLink.href.endsWith('#')) azSmsLink.click(); }" +
                                 "");
@@ -433,7 +434,7 @@ public class DialogUtil {
                         if (url.contains("login.login")) {
                             LOG.i(TAG, "request login..");
 
-                            webView.loadUrl("javascript:document.querySelector('input.btn_global').onclick = function(event){window.LoginEvent.receiveFromWeb(document.getElementById('id').value); nclks('log.login', this, event);}");
+                            webView.loadUrl("javascript:document.querySelector('button[type=submit]').onclick = function(event){window.LoginEvent.receiveFromWeb(document.getElementById('id').value); }");
                         } else if (url.equals("https://m.cafe.naver.com/cafe-home/cafes/join")) {
                             if (mTmpUserId != null) {
                                 webView.loadUrl("about:blank");

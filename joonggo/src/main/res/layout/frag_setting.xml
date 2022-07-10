@@ -17,7 +17,7 @@
             android:textSize="@dimen/abc_text_size_menu_material"
             android:textColor="?android:textColorPrimary" />
 
-        <android.support.v7.widget.SwitchCompat
+        <androidx.appcompat.widget.SwitchCompat
             android:id="@+id/chk_alarm_timezone"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -97,7 +97,7 @@
             android:textSize="@dimen/abc_text_size_menu_material"
             android:textColor="?android:textColorPrimary" />
 
-        <android.support.v7.widget.SwitchCompat
+        <androidx.appcompat.widget.SwitchCompat
             android:id="@+id/chk_alarm_vibrate"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

@@ -36,16 +36,21 @@ public class CrawlConstants {
 
     public interface Urls{
         public static final String GET_CATEGORY = "http://m.cafe.naver.com/MenuListAjax.nhn?search.clubid="+CAFE_ID+"&search.pagingType=more&search.page=%d";
-        public static final String ALL_LIST = "http://m.cafe.naver.com/ArticleAllList.nhn?search.boardtype=L&search.questionTab=A&search.clubid="+CAFE_ID+"&search.page=%d";
-        public static final String SEARCH = "http://m.cafe.naver.com/ArticleSearchList.nhn?search.clubid="+CAFE_ID+"&search.sortBy=date&search.searchBy=0&search.menuid=%s&search.query=%s&userDisplay=50&search.page=%d";
-        public static final String LOGIN_CHECK = "http://m.cafe.naver.com/FavoriteCafeList.nhn";
-        public static final String LOGIN = "https://nid.naver.com/nidlogin.login?svctype=262144&url=http%3A%2F%2Fm.cafe.naver.com%2FFavoriteCafeList.nhn";
+//        public static final String ALL_LIST = "http://m.cafe.naver.com/ArticleAllList.nhn?search.boardtype=L&search.questionTab=A&search.clubid="+CAFE_ID+"&search.page=%d";
+        public static final String ALL_LIST = "https://apis.naver.com/cafe-web/cafe2/ArticleList.json?search.clubid="+CAFE_ID+"&search.queryType=lastArticle&search.page=%d&search.perPage=100";
+        //        public static final String SEARCH = "http://m.cafe.naver.com/ArticleSearchList.nhn?search.clubid="+CAFE_ID+"&search.sortBy=date&search.searchBy=0&search.menuid=%s&search.query=%s&userDisplay=50&search.page=%d";
+        public static final String SEARCH = "https://apis.naver.com/cafe-web/cafe-mobile/CafeMobileWebArticleSearchListV3?cafeId="+CAFE_ID+"&menuId=%s&query=%s&searchBy=0&sortBy=date&page=1&perPage=50&adUnit=MW_CAFE_BOARD&ad=true";
+        public static final String LOGIN_CHECK = "https://m.cafe.naver.com/cafe-home/cafes/join";
+        public static final String LOGIN = "https://nid.naver.com/nidlogin.login?svctype=262144&url=https%3A%2F%2Fm.cafe.naver.com%2Fcafe-home%2Fcafes%2Fjoin";
 
-        public static final String DETAIL_VIEW = "http://m.cafe.naver.com/ArticleRead.nhn?clubid="+CAFE_ID+"&articleid=%s";
+//        public static final String DETAIL_VIEW = "http://m.cafe.naver.com/ArticleRead.nhn?clubid="+CAFE_ID+"&articleid=%s";
+public static final String DETAIL_VIEW = "https://m.cafe.naver.com/ca-fe/web/cafes/"+CAFE_ID+"/articles/%s?fromList=true";
         //public static final String MY_ARTICLE = "http://cafe.naver.com/CafeMemberNetworkArticleList.nhn?clubid="+CAFE_ID+"&search.clubid="+CAFE_ID+"&search.writerid=%s&search.page=%d";
-        public static final String MY_ARTICLE = "https://m.cafe.naver.com/CafeMemberArticleList.nhn?search.clubid="+CAFE_ID+"&search.writerid=%s&search.page=%d&search.perPage=100";
+//        public static final String MY_ARTICLE = "https://m.cafe.naver.com/CafeMemberArticleList.nhn?search.clubid="+CAFE_ID+"&search.writerid=%s&search.page=%d&search.perPage=100";
+        public static final String MY_ARTICLE = "https://apis.naver.com/cafe-web/cafe-mobile/CafeMemberNetworkArticleList?search.cafeId="+CAFE_ID+"&search.writerid=%s&search.perPage=100&search.page=%d&requestFrom=B";
         //http://cafe.naver.com/CafeMemberNetworkReplyList.nhn?clubid=10050146&search.clubid=10050146&search.query=risma825&search.page=1
-        public static final String MY_COMMENT = "http://cafe.naver.com/CafeMemberNetworkReplyList.nhn?clubid="+CAFE_ID+"&search.clubid="+CAFE_ID+"&search.query=%s&search.page=%d";
+//        public static final String MY_COMMENT = "http://cafe.naver.com/CafeMemberNetworkReplyList.nhn?clubid="+CAFE_ID+"&search.clubid="+CAFE_ID+"&search.query=%s&search.page=%d";
+        public static final String MY_COMMENT = "https://apis.naver.com/cafe-web/cafe-mobile/CafeMemberProfileCommentList?cafeId="+CAFE_ID+"&memberKey=jLZSNOxIdXqkm3wbhIearQ&perPage=40&page=1&requestFrom=B";
         //http://cafe.naver.com/CafeMemberNetworkCommentList.nhn?clubid=10050146&search.clubid=10050146&search.memberid=risma825&search.query=risma825&search.nickname=&search.writerid=risma825
         public static final String MY_COMMENT2 = "http://cafe.naver.com/CafeMemberNetworkCommentList.nhn?clubid="+CAFE_ID+"&search.clubid="+CAFE_ID+"&search.memberid=%s&search.query=%s&search.nickname=&search.writerid=%s&search.page=%d";
 //http://m.cafe.naver.com/CommentView.nhn?search.clubid=10050146&search.articleid=315815859

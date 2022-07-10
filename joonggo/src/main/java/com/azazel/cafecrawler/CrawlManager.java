@@ -12,19 +12,26 @@ import com.azazel.cafecrawler.data.CrawlDataHelper.Search;
 import com.azazel.framework.AzApplication;
 import com.azazel.framework.network.AzHttpRequestConfig;
 import com.azazel.framework.network.HttpRequestBuilder;
+import com.azazel.framework.network.NetworkUtil;
 import com.azazel.framework.network.NetworkUtil.StringResponseHandler;
 import com.azazel.framework.util.AzUtil;
 import com.azazel.framework.util.DelayedWebViewClient;
 import com.azazel.framework.util.LOG;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.net.URLEncoder;
+import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -63,75 +70,33 @@ public class CrawlManager {
 
         final List<Article> result = new ArrayList<Article>();
         String url = null;
-        if (keyword == null)
-            url = String.format(CrawlConstants.Urls.ALL_LIST, page);
+        if (TextUtils.isEmpty(keyword))
+            return recentList();
         else
             url = String.format(CrawlConstants.Urls.SEARCH, categoryId, URLEncoder.encode(keyword), page);
 
         LOG.d(TAG, "url : " + url);
         HttpRequestBuilder.create(TAG, url, AzHttpRequestConfig.HTTP_AZ_CONFIG_WITH_COOKIE)
-                .execute(new StringResponseHandler() {
-
+                .execute(new NetworkUtil.JSONResponseHandler() {
                     @Override
-                    public void handleResponse(int status, String body) {
-                        //LOG.i(TAG, "search : " + body);
-                        Document doc = Jsoup.parse(body);
-                        Elements rows = doc.select("div[id=articleList]>ul.lst_section>li");
-                        Pattern p = Pattern.compile("articleid=([0-9]+)&");
-                        for (Element row : rows) {
-                            LOG.i(TAG, "row : " + row);
+                    public void handleResponse(int statusCode, JSONObject body) throws JSONException {
+                        if (statusCode == 200) {
+                            JSONArray items = body.getJSONObject("message").getJSONObject("result").getJSONArray("articleList");
+                            for (int i = 0; i < items.length(); i++) {
+                                JSONObject json = (JSONObject) items.get(i);
+                                if (json.getString("type").equals("ARTICLE")) {
+                                    JSONObject item = json.getJSONObject("item");
+                                    long articleId = item.getLong("articleId");
+                                    String title = item.getString("subject");
+                                    String date = item.getString("currentSecTime");
+                                    String writer = item.getString("memberNickName");
+                                    String thumb = item.has("thumbnailImageUrl") ? item.getString("thumbnailImageUrl") : null;
 
-                            String price = null;
-                            String[] prices = PriceParser.parstPrice(row.toString());
-                            if (prices.length > 0) {
-                                price = "";
-                                for (String pri : prices) price += ", " + pri;
-                                price = price.substring(1);
-                            }
-
-                            if (row.select("span.ic_sale_end").size() == 0 && row.select("span.hc").size() == 0) {
-                                String href = row.select("a").attr("href");
-                                Matcher m = p.matcher(href);
-                                if (m.find()) {
-                                    String thumb = row.select("div.thmb>img").attr("src");
-                                    if (!AzUtil.isNullOrEmptyWithTrim(thumb)) {
-                                        int start = thumb.indexOf("http://", 6);
-                                        if (start > 0)
-                                            thumb = thumb.substring(start);
-                                    }
-                                    String articleIdStr = m.group(1);
-                                    long articleId = Long.parseLong(articleIdStr);
-
-                                    if (articleId <= lastArticle) {
-                                        LOG.i(TAG, "end new article - articleId : " + articleId + ", lastArticleId : " + lastArticle);
-                                        return;
-                                    }
-
-                                    if (categoryId == null) {
-                                        Pattern p2 = Pattern.compile("menuid=([0-9]+)");
-                                        Matcher m2 = p2.matcher(href);
-                                        if (m2.find()) {
-                                            String menuId = m2.group(1);
-                                            if (!mMeta.isAvailableCategory(menuId)) {
-                                                LOG.i(TAG, "it's not available category : " + menuId);
-                                                continue;
-                                            }
-                                        }
-                                    }
-
-                                    String title = row.select("div.tit>h3").html().replaceAll("<(/)?[^>]+>", "").replaceAll("\r\n|\n|\r", "").trim();
-                                    String info = row.select("div.info>span.time").html().replaceAll("<(/)?[^>]+>", "").replaceAll("\r\n|\n|\r", "").trim();
-                                    String writer = row.select("div.info>span.name").html().trim();
-                                    Article article = new Article(articleId, title, writer, thumb, info, CrawlConstants.ArticleType.SEARCH_RESULT);
-
-                                    article.price = price;
-
-                                    LOG.i(TAG, "search : " + article);
+                                    Article article = new Article(articleId, title, writer, thumb, date, CrawlConstants.ArticleType.SEARCH_RESULT);
+                                    LOG.i(TAG, "recentList : " + article);
                                     if (!result.contains(article))
                                         result.add(article);
                                 }
-                            } else {
-                                LOG.i(TAG, "already sold or comment: " + row);
                             }
                         }
                     }
@@ -146,43 +111,26 @@ public class CrawlManager {
         final List<Article> result = new ArrayList<Article>();
         String url = String.format(CrawlConstants.Urls.ALL_LIST, 1);
         HttpRequestBuilder.create(url, url, AzHttpRequestConfig.HTTP_AZ_CONFIG_WITH_COOKIE)
-                .execute(new StringResponseHandler() {
-
+                .execute(new NetworkUtil.JSONResponseHandler() {
                     @Override
-                    public void handleResponse(int status, String body) {
-                        //LOG.i(TAG, "category : " + body);
-                        Document doc = Jsoup.parse(body);
-                        Elements rows = doc.select("div#articleListArea>ul>li.board_box");
-                        Pattern p = Pattern.compile("articleid=([0-9]+)");
-                        for (Element row : rows) {
-                            LOG.i(TAG, "recent row : " + row);
-
-                            try {
-                                String href = row.select("a.txt_area").attr("href");
-                                Matcher m = p.matcher(href);
-                                if (m.find()) {
-                                    String articleIdStr = m.group(1);
-                                    long articleId = Long.parseLong(articleIdStr);
-
-                                    String title = row.select("a.txt_area>strong.tit").html().trim();
-                                    String date = row.select("a.txt_area>div.user_area>span.time").html().trim();
-                                    String writer = row.select("a.txt_area>div.user_area>span.nick>span.ellip").html().trim();
-
-                                    String thumb = row.select("a.thumb_area>div.thumb>img").attr("src");
-                                    if (!AzUtil.isNullOrEmptyWithTrim(thumb)) {
-                                        int start = thumb.indexOf("http://", 6);
-                                        if (start > 0)
-                                            thumb = thumb.substring(start);
-                                    }
-                                    Article article = new Article(articleId, title, writer, thumb, date, CrawlConstants.ArticleType.SEARCH_RESULT);
-                                    LOG.i(TAG, "recentList : " + article);
-                                    if (!result.contains(article))
-                                        result.add(article);
-                                } else {
-                                    LOG.i(TAG, "article id is not found.. " + row);
+                    public void handleResponse(int statusCode, JSONObject body) throws JSONException {
+                        if (statusCode == 200) {
+                            JSONArray items = body.getJSONObject("message").getJSONObject("result").getJSONArray("articleList");
+                            for (int i = 0; i < items.length(); i++) {
+                                JSONObject item = (JSONObject) items.get(i);
+                                long articleId = item.getLong("articleId");
+                                String title = item.getString("subject");
+                                String date = item.getLong("writeDateTimestamp") + "";
+                                if (item.has("writeDateTimestamp")) {
+                                    date = LocalDateTime.ofInstant(Instant.ofEpochMilli(item.getLong("writeDateTimestamp")), TimeZone.getDefault().toZoneId()).toLocalDate().toString();
                                 }
-                            } catch (Exception e) {
-                                LOG.e(TAG, "parse article err", e);
+                                String writer = item.getString("writerId");
+                                String thumb = item.has("representImage") ? item.getString("representImage") : null;
+
+                                Article article = new Article(articleId, title, writer, thumb, date, CrawlConstants.ArticleType.SEARCH_RESULT);
+                                LOG.i(TAG, "recentList : " + article);
+                                if (!result.contains(article))
+                                    result.add(article);
                             }
                         }
                     }
@@ -197,43 +145,39 @@ public class CrawlManager {
         final List<Article> result = new ArrayList<Article>();
 
         final int[] page = {1, 0};
-        do {
-            HttpRequestBuilder.create(TAG, String.format(CrawlConstants.Urls.MY_ARTICLE, URLEncoder.encode(userId), page[0]), AzHttpRequestConfig.HTTP_AZ_CONFIG_WITH_COOKIE)
-                    .setMethod("POST")
-                    .execute(new StringResponseHandler() {
+//        do {
+        HttpRequestBuilder.create(TAG, String.format(CrawlConstants.Urls.MY_ARTICLE, URLEncoder.encode(userId), page[0]), AzHttpRequestConfig.HTTP_AZ_CONFIG_WITH_COOKIE)
+                .setMethod("POST")
+                .execute(new NetworkUtil.JSONResponseHandler() {
+                    @Override
+                    public void handleResponse(int statusCode, JSONObject body) throws JSONException {
+                        if (statusCode == 200) {
+                            JSONArray items = body.getJSONObject("message").getJSONObject("result").getJSONArray("articleList");
+                            for (int i = 0; i < items.length(); i++) {
+                                JSONObject item = items.getJSONObject(i);
 
-                        @Override
-                        public void handleResponse(int status, String body) {
-                            //LOG.i(TAG, "category : " + body);
-                            Document doc = Jsoup.parse(body);
-                            Elements rows = doc.select("li.board_box");//doc.select("a[href^=javascript:goArticle]");
-                            for (int i = 1; i < rows.size(); i++) {
-                                Element row = rows.get(i);
-                                LOG.i(TAG, "row : " + row);
-
-
-                                String articleStr = row.select("a._articleListItem").attr("data-article-id");
-                                long articleId = Long.parseLong(articleStr);
-                                String title = row.select("a._articleListItem strong.tit").html().replaceAll("<(/)?[^>]+>", "").replaceAll("\r\n|\n|\r", "");
-                                String date = row.select("a._articleListItem span.time").html();
-                                String comment = row.select("a.link_comment em.num").html();
+                                long articleId = item.getLong("articleid");
+                                String title = item.getString("subject").replaceAll("<(/)?[^>]+>", "").replaceAll("\r\n|\n|\r", "");
+                                String date = item.getString("writedt").replaceAll("<(/)?[^>]+>", "").replaceAll("\r\n|\n|\r", "");
+                                String comment = item.getString("commentcount");
+                                String thumb = item.has("productSale") && item.getJSONObject("productSale").has("imgUrl") ? item.getJSONObject("productSale").getString("imgUrl") : null;
                                 Article my = new Article(articleId, title, "", null, date, CrawlConstants.ArticleType.MY_ARTICLE);
                                 if (comment != null && !comment.isEmpty())
                                     my.comment = Integer.parseInt(comment);
                                 result.add(my);
                                 LOG.i(TAG, "getMyArticle : " + my);
-
                             }
-
-                            if (page[1] == 0) {
-                                page[1] = doc.select("div.prev-next tr>td").size();
-                                LOG.i(TAG, "getMyArticle - total page : " + page[1]);
-                            }
-
-                            page[0]++;
+//                                if (page[1] == 0) {
+//                                    page[1] = doc.select("div.prev-next tr>td").size();
+//                                    LOG.i(TAG, "getMyArticle - total page : " + page[1]);
+//                                }
+//
+//                                page[0]++;
                         }
-                    });
-        } while (page[0] <= page[1]);
+                    }
+                });
+
+//        } while (page[0] <= page[1]);
         return result;
 
     }
@@ -429,7 +373,7 @@ public class CrawlManager {
         }
     }
 
-    public void reUp(final Article article){
+    public void reUp(final Article article) {
         reUp(article, false);
     }
 
@@ -461,7 +405,7 @@ public class CrawlManager {
                     view.loadUrl("javascript:sWriteMode = \"write\";document.querySelector(\"input[name='articleid']\").value = \"\";oCafeWrite.preCafeWriteContents();setTimeout(function(){console.log('try again');oCafeWrite.preCafeWriteContents();}, 2000)");
                 else if (url.contains("ArticleRead.nhn")) {
                     LOG.f(TAG, "reUp finished.. [" + article.articleId + "] ");
-                    if(!instant)
+                    if (!instant)
                         mDataHelper.updateAutoReUpload(article.articleId, true);
                     else {
                         mDataHelper.updateAutoReUpload(article.articleId, false);

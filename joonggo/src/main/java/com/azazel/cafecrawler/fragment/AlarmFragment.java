@@ -2,7 +2,7 @@ package com.azazel.cafecrawler.fragment;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
+import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,7 +16,6 @@ import android.widget.Toast;
 import com.azazel.cafecrawler.AlarmManager;
 import com.azazel.cafecrawler.CrawlConstants;
 import com.azazel.cafecrawler.CrawlManager;
-import com.azazel.cafecrawler.CrawlUtil;
 import com.azazel.cafecrawler.DialogUtil;
 import com.azazel.cafecrawler.MainActivity;
 import com.azazel.cafecrawler.MetaManager;

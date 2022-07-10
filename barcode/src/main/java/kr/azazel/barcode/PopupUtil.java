@@ -357,9 +357,10 @@ public class PopupUtil {
 
                 ((TextView) dialog.findViewById(R.id.tv_code)).setText(barcode.code);
 
-                final Uri imageCode = Uri.fromFile(new File(barcode.barcodeImage));
-                Picasso.with(activity).load(imageCode).into(imgCode);
-
+                if(!TextUtils.isEmpty(barcode.barcodeImage)) {
+                    final Uri imageCode = Uri.fromFile(new File(barcode.barcodeImage));
+                    Picasso.with(activity).load(imageCode).into(imgCode);
+                }
                 if (TextUtils.isEmpty(barcode.coverImage)) {
                     imgCover.setImageResource(R.mipmap.ic_default);
                 } else {

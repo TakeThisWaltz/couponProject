@@ -3,10 +3,10 @@ package com.azazel.cafecrawler;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Message;
-import android.support.design.widget.TabLayout;
-import android.support.v4.view.ViewPager;
 import android.view.KeyEvent;
 import android.widget.Toast;
+
+import androidx.viewpager.widget.ViewPager;
 
 import com.azazel.cafecrawler.CrawlConstants.Event;
 import com.azazel.cafecrawler.data.CrawlDataHelper;
@@ -21,6 +21,7 @@ import com.azazel.framework.AzApplication;
 import com.azazel.framework.util.LOG;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
+import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.analytics.FirebaseAnalytics;
 
 

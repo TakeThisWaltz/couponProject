@@ -22,6 +22,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -159,9 +160,10 @@ public class CrawlService extends AzService {
                 asyncHelper.addTask(new SingleTask() {
                     @Override
                     public Object doJob(Object[] args) {
-                        final List<Article> list = mCrawlMgr.getMyComment(mMeta.getUserId());
-
-                        return list;
+//                        final List<Article> list = mCrawlMgr.getMyComment(mMeta.getUserId());
+//
+//                        return list;
+                        return new ArrayList<Article>();
                     }
                 });
 
@@ -193,8 +195,8 @@ public class CrawlService extends AzService {
                                             }
                                             mDataHelper.updateScrap(updated);
                                         } else {
-                                            Article updated = mCrawlMgr.getArticle(item);
-                                            mAlarmMgr.addScrap(updated);
+//                                            Article updated = mCrawlMgr.getArticle(item);
+                                            mAlarmMgr.addScrap(item);
                                         }
 
                                         return null;

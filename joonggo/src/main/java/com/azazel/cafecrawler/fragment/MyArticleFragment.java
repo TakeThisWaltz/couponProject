@@ -1,17 +1,16 @@
 package com.azazel.cafecrawler.fragment;
 
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
+import androidx.fragment.app.Fragment;
+
 import com.azazel.cafecrawler.CrawlConstants;
-import com.azazel.cafecrawler.CrawlUtil;
 import com.azazel.cafecrawler.DialogUtil;
-import com.azazel.cafecrawler.MetaManager;
 import com.azazel.cafecrawler.R;
 import com.azazel.cafecrawler.data.CrawlDataHelper;
 import com.azazel.framework.AzApplication;
@@ -40,6 +39,7 @@ public class MyArticleFragment extends Fragment implements ICrawlFragment, Adapt
     public String getTitle() {
         return "내 글";
     }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
