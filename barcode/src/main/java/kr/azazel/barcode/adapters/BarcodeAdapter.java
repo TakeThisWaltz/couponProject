@@ -13,20 +13,21 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
-
 import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
 import android.widget.CursorAdapter;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.AppCompatCheckBox;
 
 import com.azazel.framework.AzApplication;
 import com.azazel.framework.util.LOG;
+import com.google.android.material.checkbox.MaterialCheckBox;
 import com.squareup.picasso.Picasso;
 import com.stfalcon.frescoimageviewer.ImageViewer;
 
@@ -44,6 +45,7 @@ import butterknife.ButterKnife;
 import kr.azazel.barcode.FileUtil;
 import kr.azazel.barcode.PopupUtil;
 import kr.azazel.barcode.R;
+import kr.azazel.barcode.local.AzAppDataHelper;
 import kr.azazel.barcode.view.FoldableLayout;
 import kr.azazel.barcode.vo.MyBarcode;
 
@@ -90,7 +92,7 @@ public class BarcodeAdapter implements ICursorAdapter {
 //                holder.mImageViewCover.setImageBitmap(BitmapFactory.decodeFile(barcode.barcodeImage));
 //                holder.mImageViewDetail.setImageBitmap(BitmapFactory.decodeFile(barcode.barcodeImage));
 //                // Bind data
-        if(!TextUtils.isEmpty(barcode.barcodeImage)) {
+        if (!TextUtils.isEmpty(barcode.barcodeImage)) {
             final Uri imageCode = Uri.fromFile(new File(barcode.barcodeImage));
             Picasso.with(holder.mFoldableLayout.getContext()).load(imageCode).into(holder.imgDetail);
         }
@@ -100,6 +102,16 @@ public class BarcodeAdapter implements ICursorAdapter {
             final Uri imageCover = Uri.fromFile(new File(barcode.coverImage));
             Picasso.with(holder.mFoldableLayout.getContext()).load(imageCover).into(holder.imgCover);
         }
+
+        if (barcode.usedDt != null) {
+            holder.imgUsed.setVisibility(View.VISIBLE);
+            holder.imgUsed.setImageResource(R.mipmap.stamp_used);
+            holder.imgUsed.bringToFront();
+        } else {
+            holder.imgUsed.setImageResource(0);
+            holder.imgUsed.setVisibility(View.GONE);
+        }
+
         holder.tvCoverTitle.setText(barcode.title);
         holder.tvDetailTitle.setText(barcode.title);
         holder.tvDetailCode.setText(barcode.code + "/" + barcode.type + "\uD83D\uDCCB");
@@ -133,9 +145,9 @@ public class BarcodeAdapter implements ICursorAdapter {
 
         holder.tvCoverDesc.setText(barcode.description);
         if (barcode.expirationDate > 0) {
-            LocalDate expireDate =LocalDateTime.ofInstant(Instant.ofEpochMilli(barcode.expirationDate), TimeZone.getDefault().toZoneId()).toLocalDate();
+            LocalDate expireDate = LocalDateTime.ofInstant(Instant.ofEpochMilli(barcode.expirationDate), TimeZone.getDefault().toZoneId()).toLocalDate();
             long dDay = expireDate.until(LocalDate.now(), ChronoUnit.DAYS);
-            holder.tvCoverExpired.setText(android.text.format.DateFormat.format(context.getString(R.string.expiredt_format), barcode.expirationDate) + "\n(D " + (dDay>0?"+":"") + dDay + ")");
+            holder.tvCoverExpired.setText(android.text.format.DateFormat.format(context.getString(R.string.expiredt_format), barcode.expirationDate) + "\n(D " + (dDay > 0 ? "+" : "") + dDay + ")");
             holder.tvCoverExpired.setVisibility(View.VISIBLE);
         } else holder.tvCoverExpired.setVisibility(View.GONE);
 
@@ -195,13 +207,31 @@ public class BarcodeAdapter implements ICursorAdapter {
             }
         });
 
+        holder.layoutDetailUsed.setVisibility(barcode.category == MyBarcode.Category.COUPON.value() ? View.VISIBLE : View.GONE);
+
+        holder.chkUsed.setTag(barcode);
+        holder.chkUsed.setChecked(barcode.usedDt != null);
+        holder.chkUsed.setOnClickListener((buttonView) -> {
+//            TextView thisTvUsedDt = (TextView)buttonView.getTag();
+            boolean isChecked = ((MaterialCheckBox) buttonView).isChecked();
+            MyBarcode thisBarcode = (MyBarcode) buttonView.getTag();
+//                    ;
+            Long date = isChecked ? System.currentTimeMillis() : null;
+//            thisTvUsedDt.setText(isChecked ? AzUtil.getLongDateStringFromMils(activity, date, false) : "");
+            thisBarcode.usedDt = date;
+            AzAppDataHelper.getInstance().updateBarcode(thisBarcode);
+        });
+
         holder.mFoldableLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (holder.mFoldableLayout.isFolded()) {
-                    holder.mFoldableLayout.unfoldWithAnimation();
+                FoldableLayout foldView = (FoldableLayout) v;
+                if (foldView.isFolded()) {
+                    foldView.unfoldWithAnimation();
+                    AzAppDataHelper.getInstance().increaseHits((MyBarcode) ((ViewHolder) v.getTag()).chkUsed.getTag());
                 } else {
-                    holder.mFoldableLayout.foldWithAnimation();
+                    // AzAppDataHelper.getInstance().increaseHits((MyBarcode) v.getTag());
+                    foldView.foldWithAnimation();
                 }
             }
         });
@@ -252,6 +282,9 @@ public class BarcodeAdapter implements ICursorAdapter {
     static class ViewHolder {
         protected FoldableLayout mFoldableLayout;
 
+        @Bind(R.id.img_used)
+        protected ImageView imgUsed;
+
         @Bind(R.id.img_cover)
         protected ImageView imgCover;
 
@@ -280,11 +313,14 @@ public class BarcodeAdapter implements ICursorAdapter {
         private TextView tvEdit;
         private TextView tvDelete;
         private TextView tvFullOrgImage;
+        private AppCompatCheckBox chkUsed;
+        private LinearLayout layoutDetailUsed;
 
         public ViewHolder(FoldableLayout foldableLayout) {
             mFoldableLayout = foldableLayout;
             foldableLayout.setupViews(R.layout.list_item_cover, R.layout.list_item_detail, R.dimen.card_cover_height, mFoldableLayout.getContext());
             ButterKnife.bind(this, foldableLayout);
+            this.imgUsed = (ImageView) foldableLayout.findViewById(R.id.img_used);
             this.imgCover = (ImageView) foldableLayout.findViewById(R.id.img_cover);
             this.imgDetail = (ImageView) foldableLayout.findViewById(R.id.img_detail);
             this.tvDetailCode = (TextView) foldableLayout.findViewById(R.id.tv_detail_code);
@@ -298,6 +334,8 @@ public class BarcodeAdapter implements ICursorAdapter {
             this.tvEdit = (TextView) foldableLayout.findViewById(R.id.tv_edit);
             this.tvDelete = (TextView) foldableLayout.findViewById(R.id.tv_delete);
             this.tvFullOrgImage = (TextView) foldableLayout.findViewById(R.id.tv_full_org_image);
+            this.chkUsed = (AppCompatCheckBox) foldableLayout.findViewById(R.id.chk_detail_used);
+            this.layoutDetailUsed = (LinearLayout) foldableLayout.findViewById(R.id.layout_detail_used);
         }
     }
 

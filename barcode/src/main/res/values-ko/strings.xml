@@ -1,6 +1,4 @@
-<resources
-    xmlns:tools="http://schemas.android.com/tools"
-    tools:ignore="MissingTranslation">
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
     <string name="app_name">픽미픽미</string>
     <string name="action_settings">Settings</string>
 
@@ -23,6 +21,7 @@
     <string name="lb_title">이름</string>
     <string name="lb_desc">설명</string>
     <string name="lb_expire">유효기간 : </string>
+    <string name="lb_used">사용완료 : </string>
     <string name="lb_reset">초기화</string>
     <string name="btn_save">저장</string>
     <string name="btn_del">삭제</string>
@@ -44,5 +43,28 @@
     <string name="code_type_mem">멤버십</string>
     <string name="code_type_cou">쿠폰</string>
     <string name="code_type_etc">기타</string>
+
+    <string name="order_type_reg_asc">등록순</string>
+    <string name="order_type_reg_desc">최신순</string>
+    <string name="order_type_hits">사용순</string>
+    <string name="order_type_name">이름순</string>
+    <string name="order_type_expire">유효기간순</string>
+
+    <string name="popup_confirm_restore">바코드 %1$d개가 발견되었습니다.\n모두 저장하시겠습니까?</string>
+    <string name="popup_confirm_restore_dup">이미 저장된 바코드가 %1$d개가 있습니다. 덮어쓰시겠습니까?</string>
+    <string name="popup_confirm_restore_btn_add">중복추가</string>
+    <string name="popup_confirm_restore_btn_overwrite">덮어쓰기</string>
+    <string name="popup_confirm_restore_btn_skip">건너뛰기</string>
+
+    <string name="toast_restore_barcode">바코드 %1$d개를 저장했습니다.</string>
+
+    <string name="menu_type_setting">설정</string>
+    <string name="setting_category_share">백업/공유</string>
+    <string name="setting_item_share_title">파일로 백업/공유</string>
+    <string name="setting_item_share_desc">모든 바코드를 한번에 메일로 보내 백업하거나 공유 할 수 있습니다.</string>
+
+    <string name="setting_category_lab">실험실</string>
+    <string name="setting_item_joongo_title">쿠폰 구하기</string>
+    <string name="setting_item_joongo_desc">중고나라에서 쿠폰을 찾아 바로 구매해보세요.</string>
 
 </resources>

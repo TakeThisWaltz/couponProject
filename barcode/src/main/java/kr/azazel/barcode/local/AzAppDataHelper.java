@@ -11,6 +11,9 @@ import com.azazel.framework.AzApplication;
 import com.azazel.framework.util.AzUtil;
 import com.azazel.framework.util.LOG;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import kr.azazel.barcode.vo.MyBarcode;
 
 public class AzAppDataHelper extends SQLiteOpenHelper {
@@ -20,7 +23,7 @@ public class AzAppDataHelper extends SQLiteOpenHelper {
 
     private static final String DB_NAME = "barcode_manager.db";
 
-    private static final int VERSION = 2;
+    private static final int VERSION = 4;
 
     private static AzAppDataHelper INSTANCE;
 
@@ -68,6 +71,8 @@ public class AzAppDataHelper extends SQLiteOpenHelper {
                 + "brand_type INTEGER, "
                 + "icon_url INTEGER, "
                 + "category INTEGER, "
+                + "used_dt INTEGER, "
+                + "hits INTEGER DEFAULT 0, "
                 + "crt_dt INTEGER, "
                 + "mdfy_dt INTEGER );");
 
@@ -76,8 +81,16 @@ public class AzAppDataHelper extends SQLiteOpenHelper {
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         LOG.f(TAG, "onUpgrade - old : " + oldVersion + ", new : " + newVersion);
-        if (oldVersion <= 1 && newVersion > 1) {
+        if (oldVersion < 2) {
             db.execSQL("ALTER TABLE " + TbBarcode + " ADD COLUMN origin_image TEXT DEFAULT NULL");
+        }
+
+        if (oldVersion < 3) {
+            db.execSQL("ALTER TABLE " + TbBarcode + " ADD COLUMN used_dt INTEGER DEFAULT NULL");
+        }
+
+        if (oldVersion < 4) {
+            db.execSQL("ALTER TABLE " + TbBarcode + " ADD COLUMN hits INTEGER DEFAULT 0");
         }
     }
 
@@ -118,7 +131,9 @@ public class AzAppDataHelper extends SQLiteOpenHelper {
         cv.put("brand_type", code.brandType);
         cv.put("icon_url", code.iconUrl);
         cv.put("category", code.category);
-        cv.put("crt_dt", System.currentTimeMillis());
+//        cv.put("crt_dt", System.currentTimeMillis());
+        cv.put("hits", code.hits);
+        cv.put("used_dt", code.usedDt);
         cv.put("mdfy_dt", System.currentTimeMillis());
 
         long id = mDb.update(TbBarcode, cv, "_id = " + code.id, null);
@@ -153,6 +168,35 @@ public class AzAppDataHelper extends SQLiteOpenHelper {
         AzUtil.printCursor(TAG, cs, false);
     }
 
+    public void increaseHits(MyBarcode barcode) {
+        Cursor cs = mDb.rawQuery("update " + TbBarcode + " set hits = hits + 1 where _id = ?", new String[]{barcode.id + ""});
+        AzUtil.printCursor(TAG, cs, false);
+        barcode.hits += 1;
+    }
+
+    public int queryBarcodesCount() {
+        String query = "select count(*) as cnt from tb_barcode ";
+        LOG.d(TAG, "queryBarcodesCount : " + query);
+        Cursor cursor = mDb.rawQuery(query, null);
+        cursor.moveToNext();
+        return cursor.getInt(0);
+    }
+
+    public List<MyBarcode> getAllBarcodeSummary() {
+        String query = "select _id, code, type from tb_barcode ";
+        LOG.d(TAG, "queryBarcodesCount : " + query);
+        Cursor cursor = mDb.rawQuery(query, null);
+        List<MyBarcode> codes = new ArrayList<>();
+        while (cursor.moveToNext()) {
+            MyBarcode barcode = new MyBarcode();
+            barcode.id = cursor.getInt(0);
+            barcode.code = cursor.getString(1);
+            barcode.type = cursor.getInt(2);
+            codes.add(barcode);
+        }
+        return codes;
+    }
+
     public Cursor queryBarcodes() {
         return mDb.query(TbBarcode, null, null, null, null, null, null);
     }
@@ -167,7 +211,7 @@ public class AzAppDataHelper extends SQLiteOpenHelper {
                 "1=1" +
                 ("0".equals(category) ? "" : " and category = " + category) +
                 (TextUtils.isEmpty(keyword) || "null".equals(keyword) ? "" : " and (title like '%" + keyword.replaceAll("\\'", "") + "%' or description like '%" + keyword.replaceAll("\\'", "") + "%')") +
-                " order by " + sort;
+                " order by used_dt, " + sort;
         LOG.d(TAG, "queryBarcodesByCategory : " + query);
         return mDb.rawQuery(query, null);
 //        return mDb.query(TbBarcode, null,

@@ -20,6 +20,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.azazel.framework.util.AzUtil;
 import com.azazel.framework.util.LOG;
+import com.google.android.material.checkbox.MaterialCheckBox;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.squareup.picasso.Picasso;
 import com.theartofdev.edmodo.cropper.CropImageView;
@@ -323,11 +324,25 @@ public class PopupUtil {
                 final EditText etDesc = (EditText) dialog.findViewById(R.id.et_desc);
                 final EditText etBrand = (EditText) dialog.findViewById(R.id.et_brand);
                 final TextView tvExpirationDt = (TextView) dialog.findViewById(R.id.tv_expiredt_value);
+                final TextView tvUsedDt = (TextView) dialog.findViewById(R.id.tv_used_dt);
                 final View layoutExpireDt = dialog.findViewById(R.id.layout_expiredt);
+                final MaterialCheckBox chkUsed = (MaterialCheckBox) dialog.findViewById(R.id.chk_used);
 
                 etTitle.setText(barcode.title);
                 etDesc.setText(barcode.description);
                 etBrand.setText(barcode.brand);
+
+                chkUsed.setChecked(barcode.usedDt != null);
+                if (barcode.usedDt != null) {
+                    tvUsedDt.setText(AzUtil.getLongDateStringFromMils(activity, barcode.usedDt, false));
+                }
+                chkUsed.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                    long date = barcode.usedDt != null ? barcode.usedDt : System.currentTimeMillis();
+                    tvUsedDt.setText(isChecked ? AzUtil.getLongDateStringFromMils(activity, date, false) : "");
+                });
+                dialog.findViewById(R.id.tv_used_dt).setOnClickListener(v -> {
+                    chkUsed.performClick();
+                });
 
                 final RadioGroup cateSel = (RadioGroup) dialog.findViewById(R.id.radio_category);
 
@@ -357,7 +372,7 @@ public class PopupUtil {
 
                 ((TextView) dialog.findViewById(R.id.tv_code)).setText(barcode.code);
 
-                if(!TextUtils.isEmpty(barcode.barcodeImage)) {
+                if (!TextUtils.isEmpty(barcode.barcodeImage)) {
                     final Uri imageCode = Uri.fromFile(new File(barcode.barcodeImage));
                     Picasso.with(activity).load(imageCode).into(imgCode);
                 }
@@ -399,6 +414,10 @@ public class PopupUtil {
                                 barcode.title = etTitle.getText().toString();
                                 barcode.description = etDesc.getText().toString();
                                 barcode.category = selectedCategory.value();
+
+                                if (chkUsed.isChecked() != (barcode.usedDt != null)) {
+                                    barcode.usedDt = chkUsed.isChecked() ? System.currentTimeMillis() : null;
+                                }
 
                                 barcode.update(bitmapCover);
                                 dialog.cancel();

@@ -1,6 +1,4 @@
-<resources
-    xmlns:tools="http://schemas.android.com/tools"
-    tools:ignore="MissingTranslation">
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
     <string name="app_name">PickMe!</string>
     <string name="action_settings">Settings</string>
 
@@ -23,6 +21,7 @@
     <string name="lb_title">Title</string>
     <string name="lb_desc">Description</string>
     <string name="lb_expire">Expiration Date : </string>
+    <string name="lb_used">Used : </string>
     <string name="lb_reset">Reset</string>
     <string name="btn_save">Save</string>
     <string name="btn_del">Delete</string>
@@ -63,4 +62,28 @@
     <string name="code_type_mem">Membership</string>
     <string name="code_type_cou">Coupon</string>
     <string name="code_type_etc">ETC.</string>
+
+    <string name="order_type_reg_asc">Oldest</string>
+    <string name="order_type_reg_desc">Latest</string>
+    <string name="order_type_hits">Hits</string>
+    <string name="order_type_name">Name</string>
+    <string name="order_type_expire">Expiration</string>
+
+    <string name="popup_confirm_restore">%1$d barcodes found.\nAre you sure you want to save them all?</string>
+    <string name="popup_confirm_restore_dup">There are already %1$d saved barcodes. Overwrite?</string>
+    <string name="popup_confirm_restore_btn_add">Add duplicates</string>
+    <string name="popup_confirm_restore_btn_overwrite">Overwrite</string>
+    <string name="popup_confirm_restore_btn_skip">Skip</string>
+
+    <string name="toast_restore_barcode">Saved %1$d barcodes.</string>
+
+    <string name="menu_type_setting">Settings</string>
+    <string name="setting_category_share">Backup/Share</string>
+    <string name="setting_item_share_title">Backup/Share via file</string>
+    <string name="setting_item_share_desc">Mail all barcodes at once for backup or sharing.</string>
+
+    <string name="setting_category_lab">Laboratory</string>
+    <string name="setting_item_joongo_title">쿠폰 구하기</string>
+    <string name="setting_item_joongo_desc">중고나라에서 쿠폰을 찾아 바로 구매해보세요.</string>
+
 </resources>

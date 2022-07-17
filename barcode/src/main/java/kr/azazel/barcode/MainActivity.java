@@ -44,6 +44,7 @@ import butterknife.ButterKnife;
 import gun0912.tedbottompicker.TedBottomPicker;
 import kr.azazel.barcode.adapters.ChannelPagerAdapter;
 import kr.azazel.barcode.reader.BarcodeConvertor;
+import kr.azazel.barcode.service.BackupRestoreUtil;
 import kr.azazel.barcode.service.TextExtractorUtil;
 import kr.azazel.barcode.vo.BarcodeVo;
 
@@ -101,7 +102,8 @@ public class MainActivity extends AzAppCompatActivity implements TedBottomPicker
     @Override
     public void onNewIntent(Intent intent) {
         LOG.i(TAG, "onNewIntent : " + intent);
-        this.setIntent(intent);
+       // this.setIntent(intent);
+        processIntent(intent);
     }
 
     @Override
@@ -194,7 +196,8 @@ public class MainActivity extends AzAppCompatActivity implements TedBottomPicker
         tabLayout.getTabAt(0).setIcon(R.mipmap.ic_total);
         tabLayout.getTabAt(1).setIcon(R.mipmap.ic_mem);
         tabLayout.getTabAt(2).setIcon(R.mipmap.ic_coupon);
-        tabLayout.getTabAt(3).setIcon(R.mipmap.ic_etc2);
+        tabLayout.getTabAt(3).setIcon(R.mipmap.ic_etc);
+        tabLayout.getTabAt(4).setIcon(R.mipmap.ic_etc2);
 
 //        viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
 //            @Override
@@ -218,16 +221,25 @@ public class MainActivity extends AzAppCompatActivity implements TedBottomPicker
     protected void onResume() {
         super.onResume();
         LOG.d(TAG, "onResume - intent : " + getIntent());
+    }
 
-        if (getIntent() != null) {
-            Intent intent = getIntent();
-            if (intent.getType() != null && intent.getType().contains("image")) {
-                setIntent(null);
-                Uri uri = (Uri) intent.getParcelableExtra(Intent.EXTRA_STREAM);
+    private void processIntent(Intent intent) {
+        if (intent == null) return;
+        if (intent.getType() != null && intent.getType().contains("image")) {
+            setIntent(null);
+            Uri uri = (Uri) intent.getParcelableExtra(Intent.EXTRA_STREAM);
 
-                LOG.d(TAG, "received image : " + uri);
+            LOG.d(TAG, "received image : " + uri);
 
-                onImageSelected(uri);
+            onImageSelected(uri);
+        } else if ("application/octet-stream".equals(intent.getType()) || intent.getData() != null) {
+            Uri uri = intent.getData();
+            if (uri == null) {
+                uri = (Uri) intent.getParcelableExtra(Intent.EXTRA_STREAM);
+            }
+
+            if (uri != null && FileUtil.getFileNameFromProvider(uri).endsWith(".pkm")) {
+                BackupRestoreUtil.confirmRestore(MainActivity.this, uri);
             }
         }
     }

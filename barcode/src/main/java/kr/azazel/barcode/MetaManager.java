@@ -135,7 +135,7 @@ public class MetaManager {
     }
 
     public BarcodeSort getBarcodeSortValue(MyBarcode.Category category) {
-        return BarcodeSort.valueOf(mMeta.getString(Key.BARCODE_SORT_ + category.name(), BarcodeSort.REG_ASC.name()));
+        return BarcodeSort.valueOf(mMeta.getString(Key.BARCODE_SORT_ + category.name(), category == MyBarcode.Category.TOTAL ? BarcodeSort.HIT.name() : BarcodeSort.REG_ASC.name()));
     }
 
 

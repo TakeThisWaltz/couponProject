@@ -40,8 +40,15 @@ public class MyBarcode {
     public int brandType;
     public String iconUrl;
 
+    public int hits;
+
+    public Long usedDt;
     public long crtDt;
     public long mdfyDt;
+
+    public MyBarcode() {
+
+    }
 
     public MyBarcode(int category, String code, int type, long expirationDate, String title, String description, String brand, int brandType) {
         this.category = category;
@@ -68,8 +75,14 @@ public class MyBarcode {
         this.brand = cs.getString(cs.getColumnIndex("brand"));
         this.brandType = cs.getInt(cs.getColumnIndex("brand_type"));
         this.iconUrl = cs.getString(cs.getColumnIndex("icon_url"));
+        this.hits = cs.getInt(cs.getColumnIndex("hits"));
+        this.usedDt = cs.isNull(cs.getColumnIndex("used_dt")) ? null : cs.getLong(cs.getColumnIndex("used_dt"));
         this.crtDt = cs.getLong(cs.getColumnIndex("crt_dt"));
         this.mdfyDt = cs.getLong(cs.getColumnIndex("mdfy_dt"));
+    }
+
+    public String makeCodeKey() {
+        return this.code + "/" + this.type;
     }
 
     @Override
@@ -130,6 +143,11 @@ public class MyBarcode {
             AzAppDataHelper.getInstance().updateBarcode(this);
             AzApplication.APP_CONTEXT.getContentResolver().notifyChange(AzAppConstants.URI.BARCODE_LIST, null);
         }
+    }
+
+    public void update() {
+        AzAppDataHelper.getInstance().updateBarcode(this);
+        AzApplication.APP_CONTEXT.getContentResolver().notifyChange(AzAppConstants.URI.BARCODE_LIST, null);
     }
 
     public void delete() {

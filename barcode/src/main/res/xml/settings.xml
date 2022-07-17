@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    >
+
+    <PreferenceCategory
+        app:key="setting_share"
+        app:title="@string/setting_category_share"
+        app:iconSpaceReserved="false">
+
+        <Preference
+            app:key="share_file"
+            app:title="@string/setting_item_share_title"
+            app:summary="@string/setting_item_share_desc"
+            app:iconSpaceReserved="false"
+            />
+<!--        -->
+<!--        <Preference-->
+<!--            app:key="share_cloud"-->
+<!--            app:title="클라우드로 백업/공유"-->
+<!--            app:summary="파일전송없이 서버로 전송해 백업/공유를 할 수 있습니다."-->
+<!--            />-->
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        app:key="lab"
+        app:title="@string/setting_category_lab"
+        app:iconSpaceReserved="false"
+        app:isPreferenceVisible="false"
+        >
+
+        <Preference
+            app:key="joongo"
+            app:title="@string/setting_item_joongo_title"
+            app:summary="@string/setting_item_joongo_desc"
+            app:iconSpaceReserved="false"
+            />
+
+    </PreferenceCategory>
+
+</PreferenceScreen>

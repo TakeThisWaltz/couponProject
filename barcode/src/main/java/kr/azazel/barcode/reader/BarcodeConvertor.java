@@ -350,7 +350,7 @@ public class BarcodeConvertor {
 //            }
         } catch (IllegalArgumentException iae) {
             // Unsupported format
-            LOG.e("barcode encode err", iae);
+            LOG.e(TAG,"barcode encode err", iae);
             return null;
         }
         int width = result.getWidth();

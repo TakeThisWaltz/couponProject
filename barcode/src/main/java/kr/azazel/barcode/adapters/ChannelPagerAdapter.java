@@ -7,7 +7,6 @@ import android.content.Loader;
 import android.database.Cursor;
 import android.os.Bundle;
 
-
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
@@ -18,7 +17,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import kr.azazel.barcode.AzAppConstants;
-import kr.azazel.barcode.fragments.AzFragment;
+import kr.azazel.barcode.R;
+import kr.azazel.barcode.fragments.BarcodeFragment;
+import kr.azazel.barcode.fragments.MySettingsFragment;
 import kr.azazel.barcode.vo.MyBarcode;
 
 public class ChannelPagerAdapter extends SmartFragmentStatePagerAdapter implements LoaderManager.LoaderCallbacks<Cursor> {
@@ -28,20 +29,22 @@ public class ChannelPagerAdapter extends SmartFragmentStatePagerAdapter implemen
     private Activity mActivity;
 
     private List<String> mTitleList;
-    private List<AzFragment> mFragmentList;
+    private List<Fragment> mFragmentList;
 
     public ChannelPagerAdapter(AppCompatActivity activity) {
         super(activity.getSupportFragmentManager());
         mTitleList = new ArrayList<String>();
-        mFragmentList = new ArrayList<AzFragment>();
+        mFragmentList = new ArrayList<>();
         this.mActivity = activity;
         //activity.getLoaderManager().initLoader(this.hashCode(), null, this);
 
+//        addTab("test0", 0);
         for (MyBarcode.Category cate : MyBarcode.Category.values()) {
             addCategory(cate);
         }
 
-//        addTab("test", 0);
+//        addTab("test", R.layout.splash);
+        addSettingsTab();
     }
 
     @Override
@@ -54,7 +57,11 @@ public class ChannelPagerAdapter extends SmartFragmentStatePagerAdapter implemen
 
     @Override
     public CharSequence getPageTitle(int position) {
-        return mTitleList.get(position);
+        if (mTitleList.size() > position) {
+            return mTitleList.get(position);
+        } else {
+            return null;
+        }
     }
 
     @Override
@@ -78,7 +85,7 @@ public class ChannelPagerAdapter extends SmartFragmentStatePagerAdapter implemen
 
     private void addCategory(MyBarcode.Category category) {
         LOG.i(TAG, "addCategory category : " + category);
-        AzFragment fragment = new AzFragment();
+        BarcodeFragment fragment = new BarcodeFragment();
         Bundle bundle = new Bundle();
         bundle.putSerializable("category", category);
         fragment.setArguments(bundle);
@@ -89,13 +96,19 @@ public class ChannelPagerAdapter extends SmartFragmentStatePagerAdapter implemen
 
     private void addTab(String title, int layout) {
         LOG.i(TAG, "addTab title : " + title);
-        AzFragment fragment = new AzFragment();
+        MySettingsFragment fragment = new MySettingsFragment();
         Bundle bundle = new Bundle();
         bundle.putSerializable("title", title);
         bundle.putSerializable("layout", layout);
         fragment.setArguments(bundle);
 
         mTitleList.add(title);
+        mFragmentList.add(fragment);
+    }
+
+    private void addSettingsTab() {
+        MySettingsFragment fragment = new MySettingsFragment();
+        mTitleList.add(this.mActivity.getString(R.string.menu_type_setting));
         mFragmentList.add(fragment);
     }
 

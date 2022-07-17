@@ -2,15 +2,17 @@ package kr.azazel.barcode;
 
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.net.Uri;
-
+import android.provider.OpenableColumns;
 import android.text.TextUtils;
 import android.view.View;
 
 import androidx.core.content.FileProvider;
 
+import com.azazel.framework.AzApplication;
 import com.azazel.framework.util.FileTool;
 import com.azazel.framework.util.LOG;
 
@@ -106,6 +108,28 @@ public class FileUtil {
         }
     }
 
+
+    public static String getFileNameFromProvider(Uri uri) {
+        String result = null;
+        if (uri.getScheme().equals("content")) {
+            Cursor cursor = AzApplication.APP_CONTEXT.getContentResolver().query(uri, null, null, null, null);
+            try {
+                if (cursor != null && cursor.moveToFirst()) {
+                    result = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
+                }
+            } finally {
+                cursor.close();
+            }
+        }
+        if (result == null) {
+            result = uri.getPath();
+            int cut = result.lastIndexOf('/');
+            if (cut != -1) {
+                result = result.substring(cut + 1);
+            }
+        }
+        return result;
+    }
 
     public static Bitmap combineImagesVertical(Bitmap c, Bitmap s) {
         Bitmap cs = null;

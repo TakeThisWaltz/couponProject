@@ -22,9 +22,10 @@
                 android:layout_weight="1"
                 app:iconifiedByDefault="false"
                 app:queryHint="검색어를 입력하세요" />
+
             <Spinner
-                style="@style/Material.Widget.Spinner.Light"
                 android:id="@+id/sel_sort"
+                style="@style/Material.Widget.Spinner.Light"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent" />
         </LinearLayout>
